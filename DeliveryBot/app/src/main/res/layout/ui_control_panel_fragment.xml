@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/control_panel_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -11,33 +12,46 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.2"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/positionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/posicion"/>
+            android:text="@string/posicion" />
+
         <TextView
             android:id="@+id/positionContentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/default_objective" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.2"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/objectiveTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/objetivo" />
+
         <TextView
             android:id="@+id/objectiveContentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/default_position" />
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button_service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button" />
 </LinearLayout>
