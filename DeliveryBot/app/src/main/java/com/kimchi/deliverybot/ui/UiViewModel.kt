@@ -1,71 +1,40 @@
 package com.kimchi.deliverybot.ui
 
 import android.net.Uri
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import io.grpc.ManagedChannelBuilder
-import io.grpc.examples.helloworld.GreeterGrpcKt
-import io.grpc.examples.helloworld.helloRequest
-import kotlinx.coroutines.asExecutor
-import java.io.Closeable
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.kimchi.deliverybot.grpc.KimchiGrpc
+import com.kimchi.deliverybot.utils.Pose2D
+import kotlinx.coroutines.withContext
 
 class UiViewModel: ViewModel() {
-    private val uri by lazy { Uri.parse("http://192.168.0.197:50051/") }
+    private var _pose = MutableLiveData<Pose2D>().apply {
+        value = Pose2D(0f, 0f, 0f)
+    }
+    var pose: LiveData<Pose2D> = _pose
 
-    private val greeterService by lazy { GreeterRCP(uri) }
+    // private val uri by lazy { Uri.parse("http://192.168.0.197:50051/") }
+    private val uri by lazy { Uri.parse("http://172.30.124.125:50051/") }
+    private val kimchiService by lazy { KimchiGrpc(uri) }
 
     fun callService() {
         Log.i("Arilow", "calling service")
         viewModelScope.launch(Dispatchers.IO) {
-            greeterService.sayHello("ari")
+            val poseClient = kimchiService.getPoseClient()
+            withContext(Dispatchers.Main) {
+                try {
+                    poseClient?.collect { grpcPose ->
+                        _pose.apply { value = Pose2D.fromProtoGrpcPose(grpcPose) }
+                    }
+                } catch (e: Exception) {
+                    Log.e("Arilow", "The flow has thrown an exception: $e")
+                }
+            }
         }
-
-        if (greeterService.responseState.value.isNotEmpty()) {
-            Log.i("Arilow", "Service response: " + greeterService.responseState.value);
-        } else {
-            Log.i("Arilow", "Service not responded");
-        }
-    }
-}
-
-class GreeterRCP(uri: Uri) : Closeable {
-    val responseState = mutableStateOf("")
-
-    private val channel = let {
-        println("Connecting to ${uri.host}:${uri.port}")
-
-        val builder = ManagedChannelBuilder.forAddress(uri.host, uri.port)
-        if (uri.scheme == "https") {
-            builder.useTransportSecurity()
-        } else {
-            builder.usePlaintext()
-        }
-
-        builder.executor(Dispatchers.IO.asExecutor()).build()
-    }
-
-    private val greeter = GreeterGrpcKt.GreeterCoroutineStub(channel)
-
-    suspend fun sayHello(name: String) {
-        try {
-            val request = helloRequest { this.name = name }
-            val response = greeter.sayHello(request)
-            responseState.value = response.message
-        } catch (e: Exception) {
-            responseState.value = e.message ?: "Unknown Error"
-            e.printStackTrace()
-        }
-    }
-
-    override fun close() {
-        channel.shutdownNow()
     }
 }
