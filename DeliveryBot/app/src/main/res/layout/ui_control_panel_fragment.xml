@@ -52,6 +52,14 @@
         android:id="@+id/button_service"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Button" />
+        android:layout_weight="0.2"
+        android:text="Get Pose" />
+
+    <Button
+        android:id="@+id/map_button_service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.2"
+        android:text="Get Map" />
+
 </LinearLayout>

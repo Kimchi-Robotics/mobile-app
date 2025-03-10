@@ -8,12 +8,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.kimchi.deliverybot.R
+import androidx.fragment.app.activityViewModels
 
 class UiControlPanelFragment: Fragment() {
-    val uiViewModel = UiViewModel()
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
+    private val uiViewModel : UiViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -22,7 +20,8 @@ class UiControlPanelFragment: Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.ui_control_panel_fragment, container, false)
-        val button = view.findViewById<Button>(R.id.button_service)
+        val pose_button = view.findViewById<Button>(R.id.button_service)
+        val map_button = view.findViewById<Button>(R.id.map_button_service)
         val positionContentTextView = view.findViewById<TextView>(R.id.positionContentTextView)
 
         uiViewModel.pose.observe(viewLifecycleOwner) {
@@ -32,8 +31,12 @@ class UiControlPanelFragment: Fragment() {
             positionContentTextView.text = positionContentString
         }
 
-        button.setOnClickListener {
-            uiViewModel.callService()
+        pose_button.setOnClickListener {
+            uiViewModel.callPoseService()
+        }
+
+        map_button.setOnClickListener {
+            uiViewModel.callMapService()
         }
 
         return view

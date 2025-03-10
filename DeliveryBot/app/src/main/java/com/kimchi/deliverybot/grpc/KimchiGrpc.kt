@@ -1,16 +1,22 @@
 package com.kimchi.deliverybot.grpc
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import com.kimchi.grpc.KimchiAppGrpcKt
+import com.kimchi.grpc.Pose
 import com.kimchi.grpc.empty
+import com.kimchi.grpc.Map
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import java.io.Closeable
-import com.kimchi.grpc.Pose
 import kotlinx.coroutines.flow.Flow
+import java.io.Closeable
+import android.util.Base64
+import com.kimchi.deliverybot.utils.MapInfo
+import com.kimchi.deliverybot.utils.Pose2D
 
 class KimchiGrpc(uri: Uri) : Closeable {
     val responseState = mutableStateOf("")
@@ -28,26 +34,33 @@ class KimchiGrpc(uri: Uri) : Closeable {
     }
     private val stub = KimchiAppGrpcKt.KimchiAppCoroutineStub(channel)
 
-    suspend fun getPoseClient(): Flow<Pose>? {
+    fun getPoseClient(): Flow<Pose>? {
         try {
             val request = empty {}
             val response = stub.getPose(request)
             return response
-//            try {
-//                response.collect { value ->
-//                    Log.i("Arilow", "Received response $value");
-//                }
-//            } catch (e: Exception) {
-//                Log.e("Arilow", "The flow has thrown an exception: $e")
-//            }
-//
-//            responseState.value = "lalalal"
         } catch (e: Exception) {
             responseState.value = e.message ?: "Unknown Error"
             e.printStackTrace()
         }
         return null
     }
+
+    suspend fun getMap(): MapInfo {
+        var response: Map = Map.getDefaultInstance()
+        try {
+            val request = empty {}
+            response = stub.getMap(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+        val imageBytes = Base64.decode(response.image.toByteArray(), Base64.DEFAULT)
+        val bmp = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
+        return MapInfo(bmp, Pose2D(response.origin.x, response.origin.y, response.origin.theta), response.resolution)
+    }
+
     override fun close() {
         channel.shutdownNow()
     }

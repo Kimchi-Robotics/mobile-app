@@ -39,8 +39,8 @@ message Velocity {
 
 message Map {
   bytes image = 1;
-  float width_mtrs = 2;
-  float height_mtrs = 3;
+  Pose origin = 2;
+  float resolution = 3;
 }
 
 message Empty {
