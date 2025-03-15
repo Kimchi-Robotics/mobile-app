@@ -16,6 +16,7 @@ uiTextAndroid = "1.7.8"
 storage = "1.5.0"
 foundationLayoutAndroid = "1.7.8"
 fragmentKtx = "1.8.6"
+dynamicAnimation = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +32,7 @@ androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-andr
 androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 androidx-fragment-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx"}
+androidx-dynamicanimation-dynamicanimation = { group = "androidx.dynamicanimation", name = "dynamicanimation", version.ref = "dynamicAnimation"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

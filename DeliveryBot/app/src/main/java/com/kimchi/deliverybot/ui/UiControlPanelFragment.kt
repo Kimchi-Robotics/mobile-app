@@ -1,14 +1,17 @@
 package com.kimchi.deliverybot.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.kimchi.deliverybot.R
 import androidx.fragment.app.activityViewModels
+import com.kimchi.deliverybot.R
+import com.kimchi.deliverybot.ui.JoystickView.JoystickListener
+
 
 class UiControlPanelFragment: Fragment() {
     private val uiViewModel : UiViewModel by activityViewModels()
@@ -38,7 +41,6 @@ class UiControlPanelFragment: Fragment() {
         map_button.setOnClickListener {
             uiViewModel.callMapService()
         }
-
         return view
     }
 }
