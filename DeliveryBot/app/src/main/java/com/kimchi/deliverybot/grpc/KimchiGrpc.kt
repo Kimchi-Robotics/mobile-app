@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import com.kimchi.grpc.KimchiAppGrpcKt
 import com.kimchi.grpc.Pose
-import com.kimchi.grpc.empty
+import com.kimchi.grpc.Empty
 import com.kimchi.grpc.Map
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +17,8 @@ import java.io.Closeable
 import android.util.Base64
 import com.kimchi.deliverybot.utils.MapInfo
 import com.kimchi.deliverybot.utils.Pose2D
+import com.kimchi.grpc.Velocity
+import io.grpc.stub.StreamObserver
 
 class KimchiGrpc(uri: Uri) : Closeable {
     val responseState = mutableStateOf("")
@@ -36,7 +38,7 @@ class KimchiGrpc(uri: Uri) : Closeable {
 
     fun getPoseClient(): Flow<Pose>? {
         try {
-            val request = empty {}
+            val request = Empty.newBuilder().build()
             val response = stub.getPose(request)
             return response
         } catch (e: Exception) {
@@ -49,7 +51,7 @@ class KimchiGrpc(uri: Uri) : Closeable {
     suspend fun getMap(): MapInfo {
         var response: Map = Map.getDefaultInstance()
         try {
-            val request = empty {}
+            val request = Empty.newBuilder().build()
             response = stub.getMap(request)
         } catch (e: Exception) {
             responseState.value = e.message ?: "Unknown Error"
@@ -59,6 +61,20 @@ class KimchiGrpc(uri: Uri) : Closeable {
         val bmp = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 
         return MapInfo(bmp, Pose2D(response.origin.x, response.origin.y, response.origin.theta), response.resolution)
+    }
+
+    // Send a stream of velocity updates to the server using Kotlin Flow
+    suspend fun move(velocityFlow: Flow<Velocity>): Empty {
+        Log.d("Arilow", "Starting new Move stream with Flow")
+        return try {
+            // The stub.move() method now accepts a Flow<Velocity> and returns Empty
+            val response = stub.move(velocityFlow)
+            Log.d("Arilow", "Move stream completed successfully")
+            response
+        } catch (e: Exception) {
+            Log.e("Arilow", "Error in Move stream: ${e.message}")
+            throw e
+        }
     }
 
     override fun close() {

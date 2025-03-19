@@ -13,9 +13,21 @@ import androidx.lifecycle.MutableLiveData
 import com.kimchi.deliverybot.grpc.KimchiGrpc
 import com.kimchi.deliverybot.utils.MapInfo
 import com.kimchi.deliverybot.utils.Pose2D
+import com.kimchi.deliverybot.utils.RobotState
+import com.kimchi.grpc.Velocity
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
+/**
+ * Shared view model between all UI classes. It take care of the communication qirh the gRPC
+ * services.
+ */
 class UiViewModel: ViewModel() {
+    private var _robotState = MutableLiveData<RobotState>().apply {
+        value = RobotState.WAITING
+    }
+    var robotState: LiveData<RobotState> = _robotState
+
     private var _pose = MutableLiveData<Pose2D>().apply {
         value = Pose2D(0f, 0f, 0f)
     }
@@ -58,5 +70,22 @@ class UiViewModel: ViewModel() {
                 }
             }
         }
+    }
+
+    fun callMoveService(velocityFlow: Flow<Velocity>) {
+        // Launch in a coroutine scope
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Send the velocity flow to the server
+                val response = kimchiService.move(velocityFlow)
+                Log.d("Arilow", "Move RPC completed with response: $response")
+            } catch (e: Exception) {
+                Log.e("Arilow", "Error in Move flow: ${e.message}")
+            }
+        }
+    }
+
+    fun handleState(robotState: RobotState) {
+        _robotState.apply { value = robotState }
     }
 }

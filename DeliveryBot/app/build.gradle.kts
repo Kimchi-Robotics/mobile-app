@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation("com.github.MikeOrtiz:TouchImageView:3.6")
-
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
     implementation("io.grpc:grpc-stub:1.52.1")
     implementation("io.grpc:grpc-protobuf:1.52.1")
     implementation("io.grpc:grpc-okhttp:1.52.1")

@@ -42,6 +42,7 @@ class JoystickView @JvmOverloads constructor(
     private var joystickListener: JoystickListener? = null
 
     interface JoystickListener {
+        fun onJoystickStarted()
         fun onJoystickMoved(xPercent: Float, yPercent: Float)
         fun onJoystickReleased()
     }
@@ -83,6 +84,8 @@ class JoystickView @JvmOverloads constructor(
                     isPressed = true
                     actualX = event.x
                     actualY = event.y
+                    // Notify the listener about joystick movement
+                    joystickListener?.onJoystickStarted()
                 }
             }
 

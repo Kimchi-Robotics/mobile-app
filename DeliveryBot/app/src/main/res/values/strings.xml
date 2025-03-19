@@ -4,4 +4,6 @@
     <string name="default_position">0, 0</string>
     <string name="objetivo">Objetivo:</string>
     <string name="default_objective">0, 0</string>
+    <string name="teleoperate">Teleoperate</string>
+    <string name="state_navigation">Start Navigation</string>
 </resources>
