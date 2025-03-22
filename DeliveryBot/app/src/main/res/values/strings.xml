@@ -6,4 +6,5 @@
     <string name="default_objective">0, 0</string>
     <string name="teleoperate">Teleoperate</string>
     <string name="state_navigation">Start Navigation</string>
+    <string name="scan_network">Scan Network</string>
 </resources>

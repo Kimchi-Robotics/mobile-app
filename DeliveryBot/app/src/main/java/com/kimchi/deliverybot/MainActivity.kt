@@ -1,5 +1,8 @@
 package com.kimchi.deliverybot
 
+import com.kimchi.deliverybot.network.NetworkScanner
+import android.content.Context
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -10,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.kimchi.deliverybot.ui.NetworkDevicesDialogFragment
 import com.kimchi.deliverybot.ui.UiViewModel
 import com.kimchi.deliverybot.utils.RobotState
 
@@ -49,8 +53,19 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                 _uiViewModel.handleState(RobotState.NAVIGATION)
                 return true
             }
+            R.id.scan_network -> {
+                Log.i("Arilow", "Scan network selected")
+                showNetworkDevicesDialog()
+                return true
+            }
         }
         return false
+    }
+
+    // Or from a fragment
+    fun showNetworkDevicesDialog() {
+        val dialogFragment = NetworkDevicesDialogFragment()
+        dialogFragment.show(supportFragmentManager, "network_devices_dialog")
     }
 }
 
