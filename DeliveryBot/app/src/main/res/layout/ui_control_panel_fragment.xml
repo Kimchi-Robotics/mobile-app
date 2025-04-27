@@ -17,7 +17,7 @@
             android:id="@+id/positionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/posicion" />
+            android:text="@string/position" />
 
         <TextView
             android:id="@+id/positionContentTextView"
@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/objetivo" />
+            android:text="@string/objective" />
 
         <TextView
             android:id="@+id/objectiveContentTextView"
@@ -55,15 +55,7 @@
         android:layout_weight="0.2"
         android:text="Get Pose" />
 
-    <Button
-        android:id="@+id/map_button_service"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.2"
-        android:text="Get Map" />
-
-
-        <androidx.fragment.app.FragmentContainerView
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:name="com.kimchi.deliverybot.ui.UiStateFragment"
         android:layout_weight="1"

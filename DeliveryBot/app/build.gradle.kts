@@ -40,7 +40,7 @@ android {
 
 dependencies {
 
-
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.dynamicanimation.dynamicanimation)
@@ -48,18 +48,20 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("com.github.MikeOrtiz:TouchImageView:3.6")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
-    implementation("io.grpc:grpc-stub:1.52.1")
-    implementation("io.grpc:grpc-protobuf:1.52.1")
-    implementation("io.grpc:grpc-okhttp:1.52.1")
-    implementation("io.grpc:protoc-gen-grpc-kotlin:1.3.0")
-    implementation("io.grpc:grpc-kotlin-stub:1.3.0")
-    implementation("com.google.protobuf:protobuf-kotlin:3.21.12")
+    implementation(libs.touchimageview)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.grpc.stub)
+    implementation(libs.grpc.protobuf)
+    implementation(libs.grpc.okhttp)
+    implementation(libs.protoc.gen.grpc.kotlin)
+    implementation(libs.grpc.kotlin.stub)
+    implementation(libs.protobuf.kotlin)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.androidx.storage)
     implementation(libs.androidx.foundation.layout.android)
+
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.androidx.fragment.fragment.ktx)
     testImplementation(libs.junit)
