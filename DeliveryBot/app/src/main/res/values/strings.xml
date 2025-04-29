@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">Delivery Bot</string>
-    <string name="posicion">Posicion:</string>
+    <string name="position">Posicion: </string>
     <string name="default_position">0, 0</string>
-    <string name="objetivo">Objetivo:</string>
+    <string name="objective">Objetivo: </string>
     <string name="default_objective">0, 0</string>
     <string name="teleoperate">Teleoperate</string>
     <string name="state_navigation">Start Navigation</string>
     <string name="scan_network">Scan Network</string>
+    <string name="state">Estado: </string>
+    <string name="no_state">No hay estado</string>
+    <string name="finish_map">Finish Map</string>
+    <string name="start_mapping">Start Mapping.</string>
+    <string name="mapping_explanation">No map detected. It is required to generate a new one before start navigating</string>
 </resources>

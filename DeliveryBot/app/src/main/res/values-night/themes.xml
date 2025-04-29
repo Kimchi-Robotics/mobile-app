@@ -5,4 +5,20 @@
             never <!-- default, shortEdges, or never -->
         </item>
     </style>
+
+    <style name="Theme.DeliveryBot" parent="Base.Theme.DeliveryBot">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            never <!-- default, shortEdges, or never -->
+        </item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="android:orientation">vertical</item>
+        <item name="windowSplashScreenBackground">@color/kimchi_green</item>
+        <item name="postSplashScreenTheme">@style/Theme.DeliveryBot</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/animated_logo</item>
+    </style>
+
 </resources>

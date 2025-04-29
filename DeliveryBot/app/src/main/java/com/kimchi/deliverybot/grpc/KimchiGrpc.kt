@@ -8,6 +8,7 @@ import com.kimchi.grpc.KimchiAppGrpcKt
 import com.kimchi.grpc.Pose
 import com.kimchi.grpc.Empty
 import com.kimchi.grpc.Map
+import com.kimchi.grpc.StartMappingResponse
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -16,30 +17,59 @@ import java.io.Closeable
 import android.util.Base64
 import com.kimchi.deliverybot.utils.MapInfo
 import com.kimchi.deliverybot.utils.Pose2D
+import com.kimchi.deliverybot.utils.RobotState
 import com.kimchi.grpc.IsAliveResponse
 import com.kimchi.grpc.Velocity
-import io.grpc.stub.StreamObserver
+import com.kimchi.grpc.RobotStateMsg
+import com.kimchi.grpc.StartNavigationResponse
+import com.kimchi.grpc.StartNavigationResponseKt
+import java.util.concurrent.TimeUnit
 
 class KimchiGrpc(uri: Uri) : Closeable {
-    val responseState = mutableStateOf("")
-    private val channel = let {
-        Log.i("Arilow", "Connecting to ${uri.host}:${uri.port}")
+    private val TAG = KimchiGrpc::class.qualifiedName
+    private val responseState = mutableStateOf("")
 
+    private val channel = let {
+        Log.i(TAG, "Connecting to $uri")
         val builder = ManagedChannelBuilder.forAddress(uri.host, uri.port)
         if (uri.scheme == "https") {
             builder.useTransportSecurity()
         } else {
             builder.usePlaintext()
         }
-
         builder.executor(Dispatchers.IO.asExecutor()).build()
     }
+
     private val stub = KimchiAppGrpcKt.KimchiAppCoroutineStub(channel)
 
     fun getPoseClient(): Flow<Pose>? {
         try {
             val request = Empty.newBuilder().build()
             val response = stub.getPose(request)
+            return response
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    fun getMapClient(): Flow<Map>? {
+        try {
+            val request = Empty.newBuilder().build()
+            val response = stub.subscribeToMap(request)
+            return response
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    fun getRobotStateClient(): Flow<RobotStateMsg>? {
+        try {
+            val request = Empty.newBuilder().build()
+            val response = stub.subscribeToRobotState(request)
             return response
         } catch (e: Exception) {
             responseState.value = e.message ?: "Unknown Error"
@@ -63,40 +93,85 @@ class KimchiGrpc(uri: Uri) : Closeable {
         return MapInfo(bmp, Pose2D(response.origin.x, response.origin.y, response.origin.theta), response.resolution)
     }
 
+    suspend fun startMapping() {
+        var response = StartMappingResponse.getDefaultInstance()
+        try {
+            val request = Empty.newBuilder().build()
+            response = stub.startMapping(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+        if(!response.success) {
+            Log.e(TAG, "Mapping not started: ${response.info}")
+        }
+    }
+
+    suspend fun startNavigation() {
+        var response = StartNavigationResponse.getDefaultInstance()
+        try {
+            val request = Empty.newBuilder().build()
+            response = stub.startNavigation(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+        if(!response.success) {
+            Log.e(TAG, "Mapping not started: ${response.info}")
+        }
+    }
+
     suspend fun isAlive(): Boolean {
         var response: IsAliveResponse = IsAliveResponse.getDefaultInstance()
-        Log.i("Arilow", "Calling is alive")
 
         try {
             val request = Empty.newBuilder().build()
             response = stub.isAlive(request)
-            Log.i("Arilow", "Response: $response, ${response.alive}")
+            Log.i(TAG, "Response: $response, ${response.alive}")
 
         } catch (e: Exception) {
             responseState.value = e.message ?: "Unknown Error"
-            e.printStackTrace()
+            Log.i(TAG, "Error calling isAlive: ${e.message}")
             return false
         }
-        Log.i("Arilow", "Response: $response, ${response.alive}")
+        Log.i(TAG, "Response: $response, ${response.alive}")
 
         return response.alive
     }
 
     // Send a stream of velocity updates to the server using Kotlin Flow
     suspend fun move(velocityFlow: Flow<Velocity>): Empty {
-        Log.d("Arilow", "Starting new Move stream with Flow")
+        Log.d(TAG, "Starting new Move stream with Flow")
         return try {
             // The stub.move() method now accepts a Flow<Velocity> and returns Empty
             val response = stub.move(velocityFlow)
-            Log.d("Arilow", "Move stream completed successfully")
+            Log.d(TAG, "Move stream completed successfully")
             response
         } catch (e: Exception) {
-            Log.e("Arilow", "Error in Move stream: ${e.message}")
+            Log.e(TAG, "Error in Move stream: ${e.message}")
             throw e
         }
     }
 
+    suspend fun getRobotState(): RobotState {
+        var response: RobotStateMsg = RobotStateMsg.getDefaultInstance()
+        try {
+            val request = Empty.newBuilder().build()
+            response = stub.getRobotState(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+
+        return RobotState.fromKimchiRobotStateEnum(response.state)
+    }
+
     override fun close() {
-        channel.shutdownNow()
+        Log.d(TAG, "Closing")
+        channel.shutdown()
+        if(!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+            channel.shutdownNow()
+        }
     }
 }
+

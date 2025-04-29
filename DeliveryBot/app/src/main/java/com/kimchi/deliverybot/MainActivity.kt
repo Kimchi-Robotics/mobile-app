@@ -1,29 +1,38 @@
 package com.kimchi.deliverybot
 
-import com.kimchi.deliverybot.network.NetworkScanner
-import android.content.Context
-import android.net.wifi.WifiManager
+import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
+import android.widget.Button
 import android.widget.PopupMenu
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.kimchi.deliverybot.ui.NetworkDevicesDialogFragment
+import com.kimchi.deliverybot.storage.DataStoreRepository
 import com.kimchi.deliverybot.ui.UiViewModel
 import com.kimchi.deliverybot.utils.RobotState
 
 class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
+    private val TAG = MainActivity::class.qualifiedName
     private val _uiViewModel : UiViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Init with splash screen.
+        setupAndRunSplashScreen()
+
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -32,6 +41,28 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Then handle your robot state logic
+        _uiViewModel.robotState.observe(this) {
+            if (it == RobotState.NO_MAP) {
+                val dialog = Dialog(this)
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                dialog.setCancelable(false)
+                dialog.setContentView(R.layout.no_map_dialog)
+
+                val startMappingButton: Button = dialog.findViewById(R.id.start_mapping_button)
+                startMappingButton.setOnClickListener {
+                    dialog.dismiss()
+                    _uiViewModel.callStartMappingService()
+                }
+
+                dialog.show()
+            }
+        }
+        _uiViewModel.setDataStoreRepository(DataStoreRepository(applicationContext))
+        _uiViewModel.initRobotState()
+    }
     /** Callback for when settings_menu button is pressed.  */
     fun showSettings(view: View?) {
         val popup = PopupMenu(this, view)
@@ -44,28 +75,46 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.state_teleoperation -> {
-                Log.i("Arilow", "State teleoperation selected")
-                _uiViewModel.handleState(RobotState.TELEOP)
+                Log.i(TAG, "State teleoperation selected")
                 return true
             }
             R.id.state_navigation -> {
-                Log.i("Arilow", "State navigation selected")
-                _uiViewModel.handleState(RobotState.NAVIGATION)
+                Log.i(TAG, "State navigation selected")
                 return true
             }
             R.id.scan_network -> {
-                Log.i("Arilow", "Scan network selected")
-                showNetworkDevicesDialog()
+                Log.i(TAG, "Scan network selected")
+                launchNetworkScannerActivity()
                 return true
             }
         }
         return false
     }
 
-    // Or from a fragment
-    fun showNetworkDevicesDialog() {
-        val dialogFragment = NetworkDevicesDialogFragment()
-        dialogFragment.show(supportFragmentManager, "network_devices_dialog")
+    private fun launchNetworkScannerActivity() {
+        startActivity(Intent(this, NetworkScannerActivity::class.java))
     }
-}
 
+    private fun setupAndRunSplashScreen() {
+        // Track whether we've finished the initial animation
+        var keepSplashScreenVisible = true
+
+        val splashScreen = installSplashScreen()
+        // This keeps the splash screen visible until the animation finishes and a bit more.
+        splashScreen.setKeepOnScreenCondition { keepSplashScreenVisible }
+
+        splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
+            if  (_uiViewModel.robotState.value == RobotState.NOT_CONNECTED) {
+                launchNetworkScannerActivity()
+            }
+            splashScreenViewProvider.remove()
+        }
+
+        // Use a handler to set flag to false after initial animation duration
+        Handler(Looper.getMainLooper()).postDelayed({
+            keepSplashScreenVisible = false
+        }, 1500) // Duration is the value of windowSplashScreenAnimationDuration in theme + 500ms more.
+
+    }
+
+}
