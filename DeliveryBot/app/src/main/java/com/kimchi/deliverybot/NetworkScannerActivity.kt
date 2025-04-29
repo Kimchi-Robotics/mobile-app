@@ -124,5 +124,4 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
             finish()
         }
     }
-
 }

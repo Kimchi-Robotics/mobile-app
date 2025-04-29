@@ -221,7 +221,7 @@ class UiViewModel: ViewModel() {
     private fun handleCurrentState(){
         when(_robotState.value) {
             RobotState.IDLE -> {
-                Log.i(TAG, "RobotState.IDLE set!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                Log.i(TAG, "RobotState.IDLE")
                 // This shouldn't be here because we only want to call those services when navigation starts
                 callMapService()
                 // init navigation
@@ -237,7 +237,7 @@ class UiViewModel: ViewModel() {
 
             }
             RobotState.NAVIGATION -> {
-                Log.i(TAG, "RobotState.NAVIGATION set!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                Log.i(TAG, "RobotState.NAVIGATION")
                 // TODO: clean up services and
             }
             RobotState.TELEOP -> TODO()

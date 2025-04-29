@@ -34,10 +34,6 @@ class UiControlPanelFragment: Fragment() {
         poseButton.setOnClickListener {
             uiViewModel.callPoseService()
         }
-
-//        mapButton.setOnClickListener {
-////            uiViewModel.callMapService()
-//        }
         return view
     }
 }

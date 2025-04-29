@@ -76,12 +76,10 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         when (item.itemId) {
             R.id.state_teleoperation -> {
                 Log.i(TAG, "State teleoperation selected")
-//                _uiViewModel.handleState(RobotState.TELEOP)
                 return true
             }
             R.id.state_navigation -> {
                 Log.i(TAG, "State navigation selected")
-//                _uiViewModel.handleState(RobotState.NAVIGATION)
                 return true
             }
             R.id.scan_network -> {
@@ -120,4 +118,3 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
 }
-

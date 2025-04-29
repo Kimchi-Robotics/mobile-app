@@ -30,6 +30,4 @@ class UiMappingWithTeleopFragment: Fragment() {
             _uiViewModel.callStartNavigationService()
         }
     }
-
-
 }
