@@ -10,6 +10,6 @@
     <string name="state">Estado: </string>
     <string name="no_state">No hay estado</string>
     <string name="finish_map">Finish Map</string>
-    <string name="start_mapping">Start Mapping.</string>
+    <string name="start_mapping">Start Mapping</string>
     <string name="mapping_explanation">No map detected. It is required to generate a new one before start navigating</string>
 </resources>

@@ -34,7 +34,7 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContentView(R.layout.ui_network_devices_fragment)
         // Initialize views
         _scanButton = findViewById(R.id.scanButton)
@@ -69,6 +69,7 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
         // Get local IP address to determine subnet
         val wifiManager = applicationContext
             .getSystemService(Context.WIFI_SERVICE) as WifiManager
+
         val ipAddress = wifiManager.connectionInfo.ipAddress
         val formattedIP = String.format(
             "%d.%d.%d",
