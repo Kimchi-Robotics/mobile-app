@@ -3,5 +3,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="kimchi_green">#2E7D32</color>
+    <color name="kimchi_red_violet">#C51162</color>
+    <color name="kimchi_rose_bud_cherry">#880E4F</color>
+    <color name="kimchi_leather_jacket">#23342E</color>
+    <color name="kimchi_fern_hex">#66BB6A</color>
     <color name="white_transparent">#4cFFFFFF</color>
+
 </resources>
