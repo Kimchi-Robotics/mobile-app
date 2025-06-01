@@ -1,6 +1,10 @@
 package com.kimchi.deliverybot.storage
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
+import android.net.wifi.WifiManager
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -56,8 +60,35 @@ class DataStoreRepository(private val context: Context) {
      * @return The current IP address or null if not set
      */
     suspend fun getCurrentIPAddress(): String? {
-        return context.ipDataStore.data.map { preferences ->
+         val ip = context.ipDataStore.data.map { preferences ->
             preferences[IP_ADDRESS_KEY]
         }.firstOrNull()
+
+        if (!checkIfIpIsInCurrentNetwork(ip)) {
+            clearIPAddress()
+            return null
+        }
+
+        return ip
+    }
+
+    /**
+     * Checks if the passed IP is part of the current network where the device is connected.
+     */
+    private fun checkIfIpIsInCurrentNetwork(ip :String?): Boolean {
+        if (ip == null) {
+            return false
+        }
+        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        val ipAddress = wifiManager.connectionInfo.ipAddress
+        val formattedIP = String.format(
+            "%d.%d.%d",
+            ipAddress and 0xff,
+            (ipAddress shr 8) and 0xff,
+            (ipAddress shr 16) and 0xff
+        )
+
+        return ip.contains(formattedIP)
     }
 }
