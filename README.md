@@ -11,18 +11,8 @@
 ### Run Mobile App
 
 - Open Android Studio
-- Build protocol buffers
-- Run the App
-
-### Run the python server for testing
-
-- In a new terminal go to the server dir: `cd ServerPython`
-- Run:
-
-```
-./1_prepare_venv.sh
-./2_gen_grpc_and_protobuf.sh
-source ./venv/bin/activate
-```
-
-- `python3 hello_server.py`
+- Build protocol buffers by
+  - Clicking on "Gradle" icon (looks like an elephant)
+  - Going to `Delivery Bot > app > Tasks > build` and double click on `build`
+- Connect a Cellphone to decomputer via USB. 
+- Run the App by hitting the "Play" button
