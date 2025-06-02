@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.kimchi.deliverybot.R
@@ -19,7 +18,6 @@ import androidx.fragment.app.activityViewModels
 import com.kimchi.deliverybot.utils.MapInfo
 import com.kimchi.deliverybot.utils.Pose2D
 import com.ortiz.touchview.OnTouchCoordinatesListener
-import com.ortiz.touchview.OnTouchImageViewListener
 import com.ortiz.touchview.TouchImageView
 
 class UiMapFragment: Fragment() {
@@ -57,12 +55,6 @@ class UiMapFragment: Fragment() {
             _mapInfo = it
             setOriginalBipmap(it.bitmap)
         }
-
-        touchImageView.setOnTouchImageViewListener(object : OnTouchImageViewListener {
-            override fun onMove() {
-//                Log.e("Arilow", "OnTouchImageViewListener::onMove")
-            }
-        })
 
         touchImageView.setOnTouchCoordinatesListener(object: OnTouchCoordinatesListener {
             private val kDoubleTouchTimeMs = 300
