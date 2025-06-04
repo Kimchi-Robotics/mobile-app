@@ -121,7 +121,7 @@ class UiMapFragment: Fragment() {
                         override fun onFinish() {
                             if (!shouldKillTimer) {
                                 Log.e("Arilow", "Timer finished after 300ms")
-                                onSingleTounchEvent()
+                                onSingleTouchEvent()
                             } else {
                                 Log.e("Arilow", "Timer was flagged to be killed, not executing action")
                             }
@@ -130,8 +130,8 @@ class UiMapFragment: Fragment() {
                 }
 
             }
-            fun onSingleTounchEvent() {
-                Log.e("Arilow", "onSingleTounchEvent")
+            fun onSingleTouchEvent() {
+                Log.e("Arilow", "onSingleTouchEvent")
             }
         })
 
