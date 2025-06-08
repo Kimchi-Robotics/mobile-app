@@ -22,7 +22,6 @@ import com.kimchi.grpc.IsAliveResponse
 import com.kimchi.grpc.Velocity
 import com.kimchi.grpc.RobotStateMsg
 import com.kimchi.grpc.StartNavigationResponse
-import com.kimchi.grpc.StartNavigationResponseKt
 import java.util.concurrent.TimeUnit
 
 class KimchiGrpc(uri: Uri) : Closeable {
@@ -164,6 +163,17 @@ class KimchiGrpc(uri: Uri) : Closeable {
         }
 
         return RobotState.fromKimchiRobotStateEnum(response.state)
+    }
+
+    suspend fun sendSelectedPose(pose: Pose2D) {
+        try {
+            val request = pose.toProtoGrpcPose()
+            stub.sendSelectedPose(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+
     }
 
     override fun close() {

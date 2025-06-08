@@ -74,7 +74,8 @@ class UiMapFragment: Fragment() {
                     }
                     MotionEvent.ACTION_UP -> {
                         Log.e("Arilow", "ACTION_UP")
-                        maybeCallOnSingleTouchEvent()
+
+                        maybeCallOnSingleTouchCoordEvent(bitmapPoint.x, bitmapPoint.y)
                         lastAction = MotionEvent.ACTION_UP
                         lastActionUpTimeMs = System.currentTimeMillis()
                     }
@@ -93,7 +94,7 @@ class UiMapFragment: Fragment() {
             // - Is not the second touch of a double touch: A touch that follows another touch after less that 200ms
             // - Is not a long touch: A touch that is maintained for more than 100ms
             // - Is not part of a touch with multiple fingers
-            fun maybeCallOnSingleTouchEvent() {
+            fun maybeCallOnSingleTouchCoordEvent(x: Float, y: Float) {
                 val currentTime = System.currentTimeMillis()
                 val timeSinceDown = currentTime - lastActionDownTimeMs
                 val timeBetweenTouches = currentTime - lastActionUpTimeMs
@@ -121,7 +122,7 @@ class UiMapFragment: Fragment() {
                         override fun onFinish() {
                             if (!shouldKillTimer) {
                                 Log.e("Arilow", "Timer finished after 300ms")
-                                onSingleTouchEvent()
+                                onSingleTouchCoordEvent(x, y)
                             } else {
                                 Log.e("Arilow", "Timer was flagged to be killed, not executing action")
                             }
@@ -130,8 +131,10 @@ class UiMapFragment: Fragment() {
                 }
 
             }
-            fun onSingleTouchEvent() {
+            fun onSingleTouchCoordEvent(x: Float, y: Float) {
                 Log.e("Arilow", "onSingleTouchEvent")
+
+                _uiViewModel.onSingleTouch(x, y)
             }
         })
 

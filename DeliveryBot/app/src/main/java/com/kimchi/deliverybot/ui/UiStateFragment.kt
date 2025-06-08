@@ -51,6 +51,7 @@ class UiStateFragment: Fragment() {
             RobotState.NOT_CONNECTED -> "Not connected"
             RobotState.MAPPING_WITH_TELEOP -> "Mapping with teleoperation"
             RobotState.NAVIGATION -> "Navigating"
+            RobotState.LOCATING -> "Locating"
             RobotState.MAPPING_WITH_EXPLORATION -> "Mapping with exploration"
             RobotState.NO_MAP -> "No map"
         }

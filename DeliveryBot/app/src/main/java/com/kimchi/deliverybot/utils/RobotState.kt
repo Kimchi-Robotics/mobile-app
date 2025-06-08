@@ -7,6 +7,7 @@ enum class RobotState {
     MAPPING_WITH_EXPLORATION,
     MAPPING_WITH_TELEOP,
     NAVIGATION,
+    LOCATING,
     TELEOP,
     IDLE,
     NOT_CONNECTED;
@@ -18,6 +19,7 @@ enum class RobotState {
                 RobotStateEnum.MAPPING_WITH_EXPLORATION -> MAPPING_WITH_EXPLORATION
                 RobotStateEnum.MAPPING_WITH_TELEOP -> MAPPING_WITH_TELEOP
                 RobotStateEnum.NAVIGATING -> NAVIGATION
+                RobotStateEnum.LOCATING -> LOCATING
                 RobotStateEnum.TELEOP -> TELEOP
                 RobotStateEnum.IDLE -> IDLE
                 RobotStateEnum.UNRECOGNIZED -> NOT_CONNECTED

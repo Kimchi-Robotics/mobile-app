@@ -234,7 +234,6 @@ class UiViewModel: ViewModel() {
             RobotState.MAPPING_WITH_TELEOP -> {
                 subscribeToMapService()
 //                subscribeToPoseService()
-
             }
             RobotState.NAVIGATION -> {
                 Log.i(TAG, "RobotState.NAVIGATION")
@@ -243,8 +242,27 @@ class UiViewModel: ViewModel() {
             RobotState.TELEOP -> TODO()
             RobotState.NOT_CONNECTED -> TODO()
             null -> TODO()
+            RobotState.LOCATING -> TODO()
         }
     }
+
+    fun onSingleTouch(xBitmap: Float, yBitmap: Float) {
+        if(_kimchiService == null) {
+            Log.d(TAG, "gRPC server not yet initialized")
+            return
+        }
+
+        val poseWorld = _mapInfo.value!!.BitmapToWorld(Pose2D(xBitmap, yBitmap, 0F))
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _kimchiService!!.sendSelectedPose(poseWorld)
+            } catch (e: Exception) {
+                Log.e(TAG, "The flow has thrown an exception: $e")
+            }
+        }
+    }
+
     private suspend fun tryUri(uri: Uri): Boolean {
         _kimchiService = KimchiGrpc(uri)
         if(!_kimchiService!!.isAlive()) {
