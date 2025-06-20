@@ -228,21 +228,43 @@ class UiViewModel: ViewModel() {
                 callPoseService()
             }
             RobotState.NO_MAP -> {
+                Log.i(TAG, "RobotState.NO_MAP")
 
             } // Dialog saying that there is no map and we required to create one by mapping
-            RobotState.MAPPING_WITH_EXPLORATION -> TODO()
+            RobotState.MAPPING_WITH_EXPLORATION -> {
+                Log.i(TAG, "RobotState.MAPPING_WITH_EXPLORATION")
+            }
             RobotState.MAPPING_WITH_TELEOP -> {
                 subscribeToMapService()
+                callPoseService()
 //                subscribeToPoseService()
             }
             RobotState.NAVIGATION -> {
                 Log.i(TAG, "RobotState.NAVIGATION")
                 // TODO: clean up services and
             }
-            RobotState.TELEOP -> TODO()
-            RobotState.NOT_CONNECTED -> TODO()
+            RobotState.TELEOP -> {
+                Log.i(TAG, "RobotState.TELEOP")
+            }
+            RobotState.NOT_CONNECTED -> {
+                Log.i(TAG, "RobotState.NOT_CONNECTED")
+            }
             null -> TODO()
-            RobotState.LOCATING -> TODO()
+            RobotState.LOCATING -> {
+                Log.i(TAG, "RobotState.LOCATING")
+            }
+            RobotState.LOST -> {
+                Log.i(TAG, "RobotState.LOST")
+            }
+            RobotState.RECOVERING -> {
+                Log.i(TAG, "RobotState.RECOVERING")
+            }
+            RobotState.GOAL_REACHED -> {
+                Log.i(TAG, "RobotState.GOAL_REACHED")
+            }
+            RobotState.CHARGING -> {
+                Log.i(TAG, "RobotState.CHARGING")
+            }
         }
     }
 

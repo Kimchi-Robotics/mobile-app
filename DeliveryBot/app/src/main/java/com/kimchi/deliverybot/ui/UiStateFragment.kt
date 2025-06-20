@@ -54,6 +54,10 @@ class UiStateFragment: Fragment() {
             RobotState.LOCATING -> "Locating"
             RobotState.MAPPING_WITH_EXPLORATION -> "Mapping with exploration"
             RobotState.NO_MAP -> "No map"
+            RobotState.LOST -> "Lost"
+            RobotState.RECOVERING -> "Recovering"
+            RobotState.GOAL_REACHED -> "Goal reached"
+            RobotState.CHARGING -> "Charging"
         }
     }
 

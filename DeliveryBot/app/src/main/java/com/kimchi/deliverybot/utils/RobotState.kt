@@ -10,6 +10,10 @@ enum class RobotState {
     LOCATING,
     TELEOP,
     IDLE,
+    LOST,
+    RECOVERING,
+    GOAL_REACHED,
+    CHARGING,
     NOT_CONNECTED;
 
     companion object {
@@ -22,6 +26,10 @@ enum class RobotState {
                 RobotStateEnum.LOCATING -> LOCATING
                 RobotStateEnum.TELEOP -> TELEOP
                 RobotStateEnum.IDLE -> IDLE
+                RobotStateEnum.LOST -> LOST
+                RobotStateEnum.RECOVERING -> RECOVERING
+                RobotStateEnum.GOAL_REACHED -> GOAL_REACHED
+                RobotStateEnum.CHARGING -> CHARGING
                 RobotStateEnum.UNRECOGNIZED -> NOT_CONNECTED
             }
 
