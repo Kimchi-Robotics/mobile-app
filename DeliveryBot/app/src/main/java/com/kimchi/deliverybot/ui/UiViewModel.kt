@@ -233,6 +233,7 @@ class UiViewModel: ViewModel() {
             RobotState.MAPPING_WITH_EXPLORATION -> TODO()
             RobotState.MAPPING_WITH_TELEOP -> {
                 subscribeToMapService()
+                callPoseService()
 //                subscribeToPoseService()
             }
             RobotState.NAVIGATION -> {
@@ -243,6 +244,10 @@ class UiViewModel: ViewModel() {
             RobotState.NOT_CONNECTED -> TODO()
             null -> TODO()
             RobotState.LOCATING -> TODO()
+            RobotState.LOST -> TODO()
+            RobotState.RECOVERING -> TODO()
+            RobotState.GOAL_REACHED -> TODO()
+            RobotState.CHARGING -> TODO()
         }
     }
 
