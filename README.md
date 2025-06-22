@@ -11,8 +11,19 @@
 ### Run Mobile App
 
 - Open Android Studio
-- Build protocol buffers by
+```
+./<local_path_to_android_studio>/bin/studio
+```
+- Open the project on Android studio
+- Build protocol buffers by:
   - Clicking on "Gradle" icon (looks like an elephant)
   - Going to `Delivery Bot > app > Tasks > build` and double click on `build`
+
+![image](https://github.com/user-attachments/assets/1e2aafdb-3cd0-4855-b125-1f429b875352)
+
+
 - Connect a Cellphone to decomputer via USB. 
 - Run the App by hitting the "Play" button
+
+![image](https://github.com/user-attachments/assets/7f0d46d5-02de-4064-ace9-573c9927ff29)
+
