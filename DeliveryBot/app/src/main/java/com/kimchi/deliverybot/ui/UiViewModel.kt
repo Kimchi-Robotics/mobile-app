@@ -78,6 +78,10 @@ class UiViewModel: ViewModel() {
         }
     }
 
+    fun startTeleoperation() {
+        handleState(RobotState.TELEOP)
+    }
+
     fun callPoseService() {
         Log.i(TAG, "calling service")
         if(_kimchiService == null) {
@@ -213,6 +217,10 @@ class UiViewModel: ViewModel() {
     fun handleState(robotState: RobotState) {
         if (robotState == _robotState.value) {
             return
+        } else if (_robotState.value == RobotState.MAPPING_WITH_EXPLORATION || _robotState.value == RobotState.MAPPING_WITH_TELEOP){
+            if (robotState == RobotState.IDLE ) {
+                // Cancel subscription to map
+            }
         }
         _robotState.apply { value = robotState }
         handleCurrentState()

@@ -11,7 +11,6 @@ import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.PopupMenu
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -30,8 +29,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         // Init with splash screen.
         setupAndRunSplashScreen()
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-
 
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -63,11 +60,26 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         _uiViewModel.setDataStoreRepository(DataStoreRepository(applicationContext))
         _uiViewModel.initRobotState()
     }
+
     /** Callback for when settings_menu button is pressed.  */
     fun showSettings(view: View?) {
         val popup = PopupMenu(this, view)
         val inflater = popup.menuInflater
-        inflater.inflate(R.menu.state_menu, popup.menu)
+        when (_uiViewModel.robotState.value) {
+            RobotState.MAPPING_WITH_TELEOP -> {
+                inflater.inflate(R.menu.state_menu_mapping, popup.menu)
+            }
+            RobotState.MAPPING_WITH_EXPLORATION -> {
+                inflater.inflate(R.menu.state_menu_mapping, popup.menu)
+            }
+            RobotState.TELEOP -> {
+                inflater.inflate(R.menu.state_menu_teleop, popup.menu)
+            }
+            else -> {
+                inflater.inflate(R.menu.state_menu_default, popup.menu)
+            }
+        }
+
         popup.setOnMenuItemClickListener(this)
         popup.show()
     }
@@ -76,10 +88,17 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         when (item.itemId) {
             R.id.state_teleoperation -> {
                 Log.i(TAG, "State teleoperation selected")
+                _uiViewModel.startTeleoperation()
                 return true
             }
             R.id.state_navigation -> {
                 Log.i(TAG, "State navigation selected")
+                //_uiViewModel.startNavigatio()?
+                return true
+            }
+            R.id.state_mapping -> {
+                Log.i(TAG, "State navigation selected")
+                //_uiViewModel.startMapping()?
                 return true
             }
             R.id.scan_network -> {

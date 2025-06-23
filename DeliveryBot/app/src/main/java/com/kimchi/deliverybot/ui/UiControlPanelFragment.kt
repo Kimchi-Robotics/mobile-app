@@ -21,7 +21,6 @@ class UiControlPanelFragment: Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.ui_control_panel_fragment, container, false)
-        val poseButton = view.findViewById<Button>(R.id.button_service)
         val positionContentTextView = view.findViewById<TextView>(R.id.positionContentTextView)
 
         uiViewModel.pose.observe(viewLifecycleOwner) {
@@ -29,10 +28,6 @@ class UiControlPanelFragment: Fragment() {
             val y = it.y
             val positionContentString = java.lang.String("$x, $y")
             positionContentTextView.text = positionContentString
-        }
-
-        poseButton.setOnClickListener {
-            uiViewModel.callPoseService()
         }
         return view
     }
