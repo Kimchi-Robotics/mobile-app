@@ -151,6 +151,13 @@ class UiViewModel: ViewModel() {
                 try {
                     mapClient?.collect {
                         grpcMap -> _mapInfo.apply {
+                            if (grpcMap.image.size() == 0) {
+                                Log.d(
+                                    TAG,
+                                    "grpcMap.image size is 0, returning until getting valid map information"
+                                )
+                                return@apply
+                            }
                             val imageBytes = Base64.decode(grpcMap.image.toByteArray(), Base64.DEFAULT)
                             val bmp = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                             value = MapInfo(bmp, Pose2D(grpcMap.origin.x, grpcMap.origin.y, grpcMap.origin.theta), grpcMap.resolution)
