@@ -19,6 +19,7 @@ import com.kimchi.deliverybot.utils.MapInfo
 import com.kimchi.deliverybot.utils.Pose2D
 import com.kimchi.deliverybot.utils.RobotState
 import com.kimchi.grpc.IsAliveResponse
+import com.kimchi.grpc.Path
 import com.kimchi.grpc.Velocity
 import com.kimchi.grpc.RobotStateMsg
 import com.kimchi.grpc.StartNavigationResponse
@@ -64,6 +65,19 @@ class KimchiGrpc(uri: Uri) : Closeable {
         }
         return null
     }
+
+    fun getPathClient(): Flow<Path>? {
+        try {
+            val request = Empty.newBuilder().build()
+            val response = stub.subscribeToPath(request)
+            return response
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+        return null
+    }
+
 
     fun getRobotStateClient(): Flow<RobotStateMsg>? {
         try {

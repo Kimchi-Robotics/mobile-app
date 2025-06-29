@@ -13,6 +13,7 @@ import androidx.lifecycle.MutableLiveData
 import com.kimchi.deliverybot.grpc.KimchiGrpc
 import com.kimchi.deliverybot.storage.DataStoreRepository
 import com.kimchi.deliverybot.utils.MapInfo
+import com.kimchi.deliverybot.utils.Path
 import com.kimchi.deliverybot.utils.Pose2D
 import com.kimchi.deliverybot.utils.RobotState
 import com.kimchi.grpc.Velocity
@@ -40,6 +41,12 @@ class UiViewModel: ViewModel() {
         value = MapInfo.empty()
     }
     var mapInfo: LiveData<MapInfo> = _mapInfo
+
+    private var _robotPath = MutableLiveData<Path>().apply {
+        value = Path.empty()
+    }
+    var path: LiveData<Path> = _robotPath
+
 
     private var _kimchiService: KimchiGrpc? = null
     private var _dataStoreRepo: DataStoreRepository? = null
@@ -170,6 +177,31 @@ class UiViewModel: ViewModel() {
         }
     }
 
+    private fun subscribeToPathService() {
+        if(_kimchiService == null) {
+            Log.d(TAG, "gRPC server not yet initialized")
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val pathClient = _kimchiService?.getPathClient()
+            withContext(Dispatchers.Main) {
+                try {
+                    pathClient?.collect {
+                            grpcPath -> _robotPath.apply {
+                            value = Path.fromProtoGrpcPath(grpcPath)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "The flow has thrown an exception: $e")
+                }
+            }
+        }
+    }
+
+
+
+
     private fun subscribeToRobotStateService() {
         if(_kimchiService == null) {
             Log.d(TAG, "gRPC server not yet initialized")
@@ -256,6 +288,7 @@ class UiViewModel: ViewModel() {
             }
             RobotState.NAVIGATION -> {
                 Log.i(TAG, "RobotState.NAVIGATION")
+                subscribeToPathService()
                 // TODO: clean up services and
             }
             RobotState.TELEOP -> {
