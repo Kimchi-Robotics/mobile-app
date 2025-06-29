@@ -165,19 +165,19 @@ class UiMapFragment: Fragment() {
         _robotBitmap = robotBitmap
     }
 
-    fun createMutableBitmap(drawableId: Int): Bitmap {
+    private fun createMutableBitmap(drawableId: Int): Bitmap {
         var myBitmap = BitmapFactory.decodeResource(getResources(), drawableId)
         val mutableBitmap: Bitmap = myBitmap.copy(Bitmap.Config.ARGB_8888, true)
         return mutableBitmap
     }
 
-    fun createScaleBitmap(drawableId: Int, newHeight: Int, newWidth: Int): Bitmap {
+    private fun createScaleBitmap(drawableId: Int, newHeight: Int, newWidth: Int): Bitmap {
         var myBitmap = BitmapFactory.decodeResource(resources, drawableId)
         myBitmap = Bitmap.createScaledBitmap(myBitmap!!, newWidth, newHeight, false)
         return myBitmap
     }
 
-    fun getBitmapWithRobot(pose: Pose2D): Bitmap {
+    private fun getBitmapWithRobot(pose: Pose2D): Bitmap {
         val cs = Bitmap.createBitmap(
             _currentBitmap.getWidth(),
             _currentBitmap.getHeight(),
@@ -197,7 +197,7 @@ class UiMapFragment: Fragment() {
         return cs
     }
 
-    fun drawPath(canvas: Canvas) {
+    private fun drawPath(canvas: Canvas) {
         var paint = Paint(Color.RED)
         paint.strokeWidth = 1f
         paint.color = Color.RED
