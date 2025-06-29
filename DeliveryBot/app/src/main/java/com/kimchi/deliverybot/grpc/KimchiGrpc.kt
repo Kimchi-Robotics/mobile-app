@@ -78,7 +78,6 @@ class KimchiGrpc(uri: Uri) : Closeable {
         return null
     }
 
-
     fun getRobotStateClient(): Flow<RobotStateMsg>? {
         try {
             val request = Empty.newBuilder().build()

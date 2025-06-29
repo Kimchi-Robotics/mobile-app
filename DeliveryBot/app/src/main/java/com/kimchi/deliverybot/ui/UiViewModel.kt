@@ -199,9 +199,6 @@ class UiViewModel: ViewModel() {
         }
     }
 
-
-
-
     private fun subscribeToRobotStateService() {
         if(_kimchiService == null) {
             Log.d(TAG, "gRPC server not yet initialized")
