@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PointF
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment
 import com.kimchi.deliverybot.R
 import androidx.fragment.app.activityViewModels
 import com.kimchi.deliverybot.utils.MapInfo
+import com.kimchi.deliverybot.utils.Path
 import com.kimchi.deliverybot.utils.Pose2D
 import com.ortiz.touchview.OnTouchCoordinatesListener
 import com.ortiz.touchview.TouchImageView
@@ -29,6 +32,8 @@ class UiMapFragment: Fragment() {
     private val _uiViewModel : UiViewModel by activityViewModels()
     private val _robotRadius = 30
 
+    private var _path = Path.empty()
+    private var _pathUpdated = false
     private var _mapInfo = MapInfo.empty()
 
     @SuppressLint("ClickableViewAccessibility")
@@ -49,6 +54,16 @@ class UiMapFragment: Fragment() {
         _uiViewModel.pose.observe(viewLifecycleOwner) {
             val mapBitmap = getBitmapWithRobot(it)
             view.findViewById<TouchImageView>(R.id.imageSingle).setImageBitmap(mapBitmap)
+        }
+
+        _uiViewModel.path.observe(viewLifecycleOwner) {
+            var newBitmapPath = Path.empty()
+
+            for (point in it.points) {
+                newBitmapPath.points += _mapInfo.WorldToBitmap(point)
+            }
+            _path = newBitmapPath
+            _pathUpdated = true
         }
 
         _uiViewModel.mapInfo.observe(viewLifecycleOwner) {
@@ -171,9 +186,30 @@ class UiMapFragment: Fragment() {
 
         var canvas = Canvas(cs)
         canvas.drawBitmap(_currentBitmap,0f,0f, null);
+
+        if (!_path.isEmpty() && _pathUpdated) {
+            drawPath(canvas)
+        }
+
         val mapCoords = _mapInfo.WorldToBitmap(pose)
         canvas.drawBitmap(_robotBitmap, mapCoords.x - _robotRadius/2, mapCoords.y - _robotRadius/2, null);
 
         return cs
+    }
+
+    fun drawPath(canvas: Canvas) {
+        var paint = Paint(Color.RED)
+        paint.strokeWidth = 1f
+        paint.color = Color.RED
+
+        var previusPoint: Path.Point2D? = null
+        for (point in _path.points) {
+            if (previusPoint == null) {
+                previusPoint = point
+                continue
+            }
+            canvas.drawLine(previusPoint.x, previusPoint.y, point.x, point.y, paint)
+            previusPoint = point
+        }
     }
 }

@@ -27,8 +27,6 @@ data class MapInfo(val bitmap: Bitmap, val origin: Pose2D, val resolution: Float
     }
 
     fun BitmapToWorld(bitmapPose: Pose2D): Pose2D {
-        Log.i("Arilow", "BitmapToWorld")
-
         val xMtrs = bitmapPose.x * resolution
         val yMtrs = bitmapPose.y * resolution
         val worldHeight = bitmap.height * resolution
@@ -37,10 +35,19 @@ data class MapInfo(val bitmap: Bitmap, val origin: Pose2D, val resolution: Float
         val yWorld = cos(origin.theta) * (worldHeight - yMtrs - origin.y) + sin(origin.theta) * (xMtrs - origin.x)
         val thetaWorld = - (bitmapPose.theta - origin.theta)
 
-        Log.i("Arilow", "x: $xWorld")
-        Log.i("Arilow", "y: $yWorld")
-        Log.i("Arilow", "theta: $thetaWorld")
-
         return Pose2D(xWorld, yWorld, thetaWorld)
     }
+
+    fun WorldToBitmap(worldPose: Path.Point2D): Path.Point2D {
+        val xWorld = worldPose.x
+        val yWorld = worldPose.y
+        val worldHeight = bitmap.height * resolution
+
+        val xMtrs = xWorld * cos(origin.theta) - yWorld * sin(origin.theta) + origin.x
+        // This considers that the Y-axis of an Android Bitmap starts at the top and goes down.
+        val yMtrs = -(xWorld * sin(origin.theta) + yWorld * cos(origin.theta) - (worldHeight - origin.y))
+
+        return Path.Point2D(xMtrs/resolution, yMtrs/resolution)
+    }
+
 }
