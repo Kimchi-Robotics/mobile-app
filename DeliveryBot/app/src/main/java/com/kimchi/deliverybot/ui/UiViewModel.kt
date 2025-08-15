@@ -250,6 +250,48 @@ class UiViewModel: ViewModel() {
         }
     }
 
+    fun callNavigationCancelGoalService() {
+        if(_kimchiService == null) {
+            Log.d(TAG, "gRPC server not yet initialized")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _kimchiService!!.navigationCancelGoalService()
+            } catch (e: Exception) {
+                Log.e(TAG, "The flow has thrown an exception: $e")
+            }
+        }
+    }
+
+    fun callNavigationContinuePathService() {
+        if(_kimchiService == null) {
+            Log.d(TAG, "gRPC server not yet initialized")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _kimchiService!!.navigationContinuePathService()
+            } catch (e: Exception) {
+                Log.e(TAG, "The flow has thrown an exception: $e")
+            }
+        }
+    }
+
+    fun callNavigationCancelMissionService() {
+        if(_kimchiService == null) {
+            Log.d(TAG, "gRPC server not yet initialized")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _kimchiService!!.navigationCancelMissionService()
+            } catch (e: Exception) {
+                Log.e(TAG, "The flow has thrown an exception: $e")
+            }
+        }
+    }
+
     fun handleState(robotState: RobotState) {
         if (robotState == _robotState.value) {
             return

@@ -69,6 +69,8 @@ class UiStateFragment: Fragment() {
             RobotState.IDLE -> UiEmptyFragment()
             RobotState.TELEOP -> UiJoystickFragment()
             RobotState.MAPPING_WITH_TELEOP -> UiMappingWithTeleopFragment()
+            RobotState.GOAL_REACHED -> UiGoalReachedFragment()
+            RobotState.NAVIGATION -> UiNavigatingFragment()
             else -> UiEmptyFragment()
         }
 

@@ -129,9 +129,40 @@ class KimchiGrpc(uri: Uri) : Closeable {
             e.printStackTrace()
         }
         if(!response.success) {
-            Log.e(TAG, "Mapping not started: ${response.info}")
+            Log.e(TAG, "Navigation not started: ${response.info}")
         }
     }
+
+    suspend fun navigationCancelGoalService() {
+        try {
+            val request = Empty.newBuilder().build()
+            stub.navigationCancelGoalService(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun navigationContinuePathService() {
+        try {
+            val request = Empty.newBuilder().build()
+            stub.navigationContinuePathService(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun navigationCancelMissionService() {
+        try {
+            val request = Empty.newBuilder().build()
+            stub.navigationCancelMissionService(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+    }
+
 
     suspend fun isAlive(): Boolean {
         var response: IsAliveResponse = IsAliveResponse.getDefaultInstance()
@@ -180,8 +211,11 @@ class KimchiGrpc(uri: Uri) : Closeable {
 
     suspend fun sendSelectedPose(pose: Pose2D) {
         try {
+            Log.e(TAG, "Calling sendsellected pose")
             val request = pose.toProtoGrpcPose()
+            Log.e(TAG, "Middle")
             stub.sendSelectedPose(request)
+            Log.e(TAG, "Send selected pose called")
         } catch (e: Exception) {
             responseState.value = e.message ?: "Unknown Error"
             e.printStackTrace()
