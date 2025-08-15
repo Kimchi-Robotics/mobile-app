@@ -8,10 +8,8 @@ data class Path(var points: MutableList<Point2D>) {
     companion object {
         fun fromProtoGrpcPath(grpcPath: GrpcPath): Path {
             var output = mutableListOf<Point2D>()
-            Log.e("Arilow", "copying grpc path")
 
             for (point in grpcPath.pointsList) {
-                Log.e("Arilow", "copying point, x: ${point.x}, y: ${point.y}")
                 output += Point2D(point.x, point.y)
             }
 

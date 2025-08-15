@@ -12,4 +12,8 @@
     <string name="finish_map">Finish Map</string>
     <string name="start_mapping">Start Mapping</string>
     <string name="mapping_explanation">No map detected. It is required to generate a new one before start navigating</string>
+    <string name="continue_path">Continuar</string>
+    <string name="return_home">Volver</string>
+    <string name="stop">Stop</string>
+    <string name="cancel_mission">Cancelar misión</string>
 </resources>

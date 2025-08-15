@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
     private val TAG = MainActivity::class.qualifiedName
     private val _uiViewModel : UiViewModel by viewModels()
+    private lateinit var _startMappingDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Init with splash screen.
@@ -36,29 +37,36 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        setupStartMappingDialog()
     }
 
     override fun onResume() {
         super.onResume()
         // Then handle your robot state logic
         _uiViewModel.robotState.observe(this) {
+            Log.i(TAG, "Observing robot state $it")
             if (it == RobotState.NO_MAP) {
-                val dialog = Dialog(this)
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setCancelable(false)
-                dialog.setContentView(R.layout.no_map_dialog)
-
-                val startMappingButton: Button = dialog.findViewById(R.id.start_mapping_button)
-                startMappingButton.setOnClickListener {
-                    dialog.dismiss()
-                    _uiViewModel.callStartMappingService()
+                if (!_startMappingDialog.isShowing) {
+                    Log.i(TAG, "Showing dialog")
+                    _startMappingDialog.show()
                 }
-
-                dialog.show()
             }
         }
         _uiViewModel.setDataStoreRepository(DataStoreRepository(applicationContext))
         _uiViewModel.initRobotState()
+    }
+
+    private fun setupStartMappingDialog() {
+        _startMappingDialog = Dialog(this)
+        _startMappingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        _startMappingDialog.setCancelable(false)
+        _startMappingDialog.setContentView(R.layout.no_map_dialog)
+
+        val startMappingButton: Button = _startMappingDialog.findViewById(R.id.start_mapping_button)
+        startMappingButton.setOnClickListener {
+            _startMappingDialog.dismiss()
+            _uiViewModel.callStartMappingService()
+        }
     }
 
     /** Callback for when settings_menu button is pressed.  */
