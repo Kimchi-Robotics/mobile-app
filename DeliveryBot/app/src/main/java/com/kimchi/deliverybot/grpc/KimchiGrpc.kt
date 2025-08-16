@@ -211,11 +211,8 @@ class KimchiGrpc(uri: Uri) : Closeable {
 
     suspend fun sendSelectedPose(pose: Pose2D) {
         try {
-            Log.e(TAG, "Calling sendsellected pose")
             val request = pose.toProtoGrpcPose()
-            Log.e(TAG, "Middle")
             stub.sendSelectedPose(request)
-            Log.e(TAG, "Send selected pose called")
         } catch (e: Exception) {
             responseState.value = e.message ?: "Unknown Error"
             e.printStackTrace()

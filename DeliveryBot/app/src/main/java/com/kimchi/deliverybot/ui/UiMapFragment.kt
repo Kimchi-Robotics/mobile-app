@@ -193,7 +193,6 @@ class UiMapFragment: Fragment() {
         }
 
         val mapCoords = _mapInfo.WorldToBitmap(pose)
-//        canvas.drawBitmap(_robotBitmap, mapCoords.x - _robotRadius/2, mapCoords.y - _robotRadius/2, null);
         drawRotatedBitmapWithMatrix(canvas, _robotBitmap, mapCoords.x, mapCoords.y, radsToDegrees(mapCoords.theta))
         return cs
     }
