@@ -16,4 +16,6 @@
     <string name="return_home">Volver</string>
     <string name="stop">Stop</string>
     <string name="cancel_mission">Cancelar misión</string>
+    <string name="localize_intructions">El robot esta perdido y no puede lozalizarse por su cuenta. Por favor, indique su ubicacion aproximada en el map. Una vez seleccionada, el robot iniciará un protocolo de posicionamiento para asegurar un resultado preciso.</string>
+    <string name="localize">Localizar</string>
 </resources>

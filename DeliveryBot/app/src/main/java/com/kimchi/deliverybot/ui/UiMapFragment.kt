@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PointF
 import android.os.Bundle
@@ -192,11 +193,17 @@ class UiMapFragment: Fragment() {
         }
 
         val mapCoords = _mapInfo.WorldToBitmap(pose)
-        canvas.drawBitmap(_robotBitmap, mapCoords.x - _robotRadius/2, mapCoords.y - _robotRadius/2, null);
-
+//        canvas.drawBitmap(_robotBitmap, mapCoords.x - _robotRadius/2, mapCoords.y - _robotRadius/2, null);
+        drawRotatedBitmapWithMatrix(canvas, _robotBitmap, mapCoords.x, mapCoords.y, radsToDegrees(mapCoords.theta))
         return cs
     }
-
+    private fun drawRotatedBitmapWithMatrix(canvas: Canvas, bitmap: Bitmap, x: Float, y: Float, degrees: Float) {
+        val matrix = Matrix()
+        Log.e("Arilow", "degrees: ${degrees}")
+        matrix.postRotate(degrees, bitmap.width / 2f, bitmap.height / 2f)
+        matrix.postTranslate(x - bitmap.width / 2f, y - bitmap.height / 2f)
+        canvas.drawBitmap(bitmap, matrix, null)
+    }
     private fun drawPath(canvas: Canvas) {
         var paint = Paint(Color.RED)
         paint.strokeWidth = 1f
@@ -211,5 +218,9 @@ class UiMapFragment: Fragment() {
             canvas.drawLine(previusPoint.x, previusPoint.y, point.x, point.y, paint)
             previusPoint = point
         }
+    }
+
+    private fun radsToDegrees(rads: Float): Float {
+        return rads * 180.0f / 3.1415f
     }
 }

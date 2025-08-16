@@ -48,8 +48,28 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
             if (it == RobotState.NO_MAP) {
                 if (!_startMappingDialog.isShowing) {
                     Log.i(TAG, "Showing dialog")
+                    _startMappingDialog.setContentView(R.layout.dialog_no_map)
+
+                    val startMappingButton: Button = _startMappingDialog.findViewById(R.id.start_mapping_button)
+                    startMappingButton.setOnClickListener {
+                        _startMappingDialog.dismiss()
+                        _uiViewModel.callStartMappingService()
+                    }
                     _startMappingDialog.show()
                 }
+            } else if (it == RobotState.LOST) {
+                if (!_startMappingDialog.isShowing) {
+                    Log.i(TAG, "Showing dialog")
+                    _startMappingDialog.setContentView(R.layout.dialog_lost)
+
+                    val startMappingButton: Button = _startMappingDialog.findViewById(R.id.start_mapping_button)
+                    startMappingButton.setOnClickListener {
+                        _startMappingDialog.dismiss()
+                        _uiViewModel.callStartMappingService()
+                    }
+                    _startMappingDialog.show()
+                }
+
             }
         }
         _uiViewModel.setDataStoreRepository(DataStoreRepository(applicationContext))
@@ -60,13 +80,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         _startMappingDialog = Dialog(this)
         _startMappingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         _startMappingDialog.setCancelable(false)
-        _startMappingDialog.setContentView(R.layout.no_map_dialog)
-
-        val startMappingButton: Button = _startMappingDialog.findViewById(R.id.start_mapping_button)
-        startMappingButton.setOnClickListener {
-            _startMappingDialog.dismiss()
-            _uiViewModel.callStartMappingService()
-        }
     }
 
     /** Callback for when settings_menu button is pressed.  */
