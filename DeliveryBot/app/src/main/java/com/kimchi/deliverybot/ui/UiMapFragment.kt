@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.Paint
 import android.graphics.PointF
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -18,9 +15,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.kimchi.deliverybot.R
 import androidx.fragment.app.activityViewModels
+import com.kimchi.deliverybot.draw.MarkerBitmap
+import com.kimchi.deliverybot.draw.MarkersBitmapArray
+import com.kimchi.deliverybot.draw.RobotBitmap
+import com.kimchi.deliverybot.draw.RobotPath
 import com.kimchi.deliverybot.utils.MapInfo
 import com.kimchi.deliverybot.utils.Path
-import com.kimchi.deliverybot.utils.Pose2D
+import com.kimchi.deliverybot.utils.Point2D
+import com.kimchi.deliverybot.utils.RobotState
 import com.ortiz.touchview.OnTouchCoordinatesListener
 import com.ortiz.touchview.TouchImageView
 
@@ -28,12 +30,15 @@ class UiMapFragment: Fragment() {
     private lateinit var _originalBitmap: Bitmap
 
     private lateinit var _currentBitmap: Bitmap
-    private lateinit var _robotBitmap: Bitmap
+    private var _markers = MarkersBitmapArray()
+
+    private lateinit var _robotBitmap: RobotBitmap
 
     private val _uiViewModel : UiViewModel by activityViewModels()
     private val _robotRadius = 30
+    private val _markerSize = 15
 
-    private var _path = Path.empty()
+    private var _robotPath = RobotPath()
     private var _pathUpdated = false
     private var _mapInfo = MapInfo.empty()
 
@@ -48,28 +53,44 @@ class UiMapFragment: Fragment() {
         var touchImageView = view.findViewById<TouchImageView>(R.id.imageSingle)
 
         setOriginalBipmap(createMutableBitmap(R.drawable.map))
-        setRobotBitmap(createScaleBitmap(R.drawable.robot_image, _robotRadius, _robotRadius))
-        val bitmap = getBitmapWithRobot(Pose2D(0f, 0f, 0f))
+        _robotBitmap = RobotBitmap(createScaleBitmap(R.drawable.robot_image, _robotRadius, _robotRadius))
+
+        val bitmap = drawBitmap()
         touchImageView.setImageBitmap(bitmap)
 
         _uiViewModel.pose.observe(viewLifecycleOwner) {
-            val mapBitmap = getBitmapWithRobot(it)
-            view.findViewById<TouchImageView>(R.id.imageSingle).setImageBitmap(mapBitmap)
+            _robotBitmap.updatePose(_mapInfo.WorldToBitmap(it))
+            val mapBitmap = drawBitmap()
+            touchImageView.setImageBitmap(mapBitmap)
         }
 
         _uiViewModel.path.observe(viewLifecycleOwner) {
+            if (_uiViewModel.robotState.value != RobotState.NAVIGATION) {
+                return@observe
+            }
             var newBitmapPath = Path.empty()
 
             for (point in it.points) {
                 newBitmapPath.points += _mapInfo.WorldToBitmap(point)
             }
-            _path = newBitmapPath
+            _robotPath.updatePath(newBitmapPath)
             _pathUpdated = true
         }
 
         _uiViewModel.mapInfo.observe(viewLifecycleOwner) {
             _mapInfo = it
             setOriginalBipmap(it.bitmap)
+            touchImageView.setImageBitmap(drawBitmap())
+        }
+
+        _uiViewModel.robotState.observe(viewLifecycleOwner) {
+            if (it == RobotState.IDLE) {
+                _markers.clear()
+                _robotPath.clear()
+            } else if (it != RobotState.NAVIGATION) {
+                _robotPath.clear()
+            }
+            touchImageView.setImageBitmap(drawBitmap())
         }
 
         touchImageView.setOnTouchCoordinatesListener(object: OnTouchCoordinatesListener {
@@ -149,7 +170,7 @@ class UiMapFragment: Fragment() {
             }
             fun onSingleTouchCoordEvent(x: Float, y: Float) {
                 Log.e("Arilow", "onSingleTouchEvent")
-
+                _markers.addMarker(MarkerBitmap(createScaleBitmap(R.drawable.marker2, _markerSize, _markerSize), Point2D(x, y)))
                 _uiViewModel.onSingleTouch(x, y)
             }
         })
@@ -160,10 +181,6 @@ class UiMapFragment: Fragment() {
     private fun setOriginalBipmap(originalBitmap: Bitmap){
         _originalBitmap = originalBitmap
         _currentBitmap = _originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
-    }
-
-    private fun setRobotBitmap(robotBitmap: Bitmap) {
-        _robotBitmap = robotBitmap
     }
 
     private fun createMutableBitmap(drawableId: Int): Bitmap {
@@ -178,7 +195,7 @@ class UiMapFragment: Fragment() {
         return myBitmap
     }
 
-    private fun getBitmapWithRobot(pose: Pose2D): Bitmap {
+    private fun drawBitmap(): Bitmap {
         val cs = Bitmap.createBitmap(
             _currentBitmap.getWidth(),
             _currentBitmap.getHeight(),
@@ -188,38 +205,12 @@ class UiMapFragment: Fragment() {
         var canvas = Canvas(cs)
         canvas.drawBitmap(_currentBitmap,0f,0f, null);
 
-        if (!_path.isEmpty() && _pathUpdated) {
-            drawPath(canvas)
+        if (_pathUpdated) {
+            _robotPath.drawOnCanvas(canvas)
         }
 
-        val mapCoords = _mapInfo.WorldToBitmap(pose)
-        drawRotatedBitmapWithMatrix(canvas, _robotBitmap, mapCoords.x, mapCoords.y, radsToDegrees(mapCoords.theta))
+        _markers.drawOnCanvas(canvas)
+        _robotBitmap.drawOnCanvas(canvas)
         return cs
-    }
-    private fun drawRotatedBitmapWithMatrix(canvas: Canvas, bitmap: Bitmap, x: Float, y: Float, degrees: Float) {
-        val matrix = Matrix()
-        Log.e("Arilow", "degrees: ${degrees}")
-        matrix.postRotate(degrees, bitmap.width / 2f, bitmap.height / 2f)
-        matrix.postTranslate(x - bitmap.width / 2f, y - bitmap.height / 2f)
-        canvas.drawBitmap(bitmap, matrix, null)
-    }
-    private fun drawPath(canvas: Canvas) {
-        var paint = Paint(Color.RED)
-        paint.strokeWidth = 1f
-        paint.color = Color.RED
-
-        var previusPoint: Path.Point2D? = null
-        for (point in _path.points) {
-            if (previusPoint == null) {
-                previusPoint = point
-                continue
-            }
-            canvas.drawLine(previusPoint.x, previusPoint.y, point.x, point.y, paint)
-            previusPoint = point
-        }
-    }
-
-    private fun radsToDegrees(rads: Float): Float {
-        return rads * 180.0f / 3.1415f
     }
 }

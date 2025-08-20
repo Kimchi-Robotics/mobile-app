@@ -338,10 +338,12 @@ class UiViewModel: ViewModel() {
             }
             null -> TODO()
             RobotState.LOCATING -> {
+                callPoseService()
                 Log.i(TAG, "RobotState.LOCATING")
             }
             RobotState.LOST -> {
                 Log.i(TAG, "RobotState.LOST")
+                callMapService()
             }
             RobotState.RECOVERING -> {
                 Log.i(TAG, "RobotState.RECOVERING")

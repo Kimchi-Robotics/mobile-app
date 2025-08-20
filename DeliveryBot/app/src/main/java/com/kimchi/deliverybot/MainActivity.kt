@@ -65,7 +65,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                     val startMappingButton: Button = _startMappingDialog.findViewById(R.id.start_mapping_button)
                     startMappingButton.setOnClickListener {
                         _startMappingDialog.dismiss()
-                        _uiViewModel.callStartMappingService()
                     }
                     _startMappingDialog.show()
                 }
