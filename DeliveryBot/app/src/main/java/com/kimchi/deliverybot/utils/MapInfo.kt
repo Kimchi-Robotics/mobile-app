@@ -1,7 +1,6 @@
 package com.kimchi.deliverybot.utils
 
 import android.graphics.Bitmap
-import android.util.Log
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -14,7 +13,7 @@ data class MapInfo(val bitmap: Bitmap, val origin: Pose2D, val resolution: Float
 
     // Returns tranforms a pose in the frame of the world to the frame of an Android Bitmap.
     fun WorldToBitmap(worldPose: Pose2D): Pose2D {
-        val xyBitmap = WorldToBitmap(Path.Point2D(worldPose.x, worldPose.y))
+        val xyBitmap = WorldToBitmap(Point2D(worldPose.x, worldPose.y))
         val theta = - (worldPose.theta + origin.theta)
 
         return Pose2D(xyBitmap.x, xyBitmap.y, theta)
@@ -32,7 +31,7 @@ data class MapInfo(val bitmap: Bitmap, val origin: Pose2D, val resolution: Float
         return Pose2D(xWorld, yWorld, thetaWorld)
     }
 
-    fun WorldToBitmap(worldPose: Path.Point2D): Path.Point2D {
+    fun WorldToBitmap(worldPose: Point2D): Point2D {
         val xWorld = worldPose.x
         val yWorld = worldPose.y
         val worldHeight = bitmap.height * resolution
@@ -41,7 +40,7 @@ data class MapInfo(val bitmap: Bitmap, val origin: Pose2D, val resolution: Float
         // This considers that the Y-axis of an Android Bitmap starts at the top and goes down.
         val yMtrs = -(xWorld * sin(origin.theta) + yWorld * cos(origin.theta) - (worldHeight - origin.y))
 
-        return Path.Point2D(xMtrs/resolution, yMtrs/resolution)
+        return Point2D(xMtrs/resolution, yMtrs/resolution)
     }
 
 }
