@@ -170,7 +170,7 @@ class UiMapFragment: Fragment() {
             }
             fun onSingleTouchCoordEvent(x: Float, y: Float) {
                 Log.e("Arilow", "onSingleTouchEvent")
-                _markers.addMarker(MarkerBitmap(createScaleBitmap(R.drawable.marker2, _markerSize, _markerSize), Point2D(x, y)))
+                _markers.addMarker(MarkerBitmap(createScaleBitmap(R.drawable.marker, _markerSize, _markerSize), Point2D(x, y)))
                 _uiViewModel.onSingleTouch(x, y)
             }
         })
