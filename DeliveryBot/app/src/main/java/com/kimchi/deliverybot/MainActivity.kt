@@ -45,7 +45,9 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         // Then handle your robot state logic
         _uiViewModel.robotState.observe(this) {
             Log.i(TAG, "Observing robot state $it")
-            if (it == RobotState.NO_MAP) {
+            if  (it == RobotState.NOT_CONNECTED) {
+                launchNetworkScannerActivity()
+            } else if (it == RobotState.NO_MAP) {
                 if (!_startMappingDialog.isShowing) {
                     Log.i(TAG, "Showing dialog")
                     _startMappingDialog.setContentView(R.layout.dialog_no_map)
@@ -68,7 +70,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                     }
                     _startMappingDialog.show()
                 }
-
             }
         }
         _uiViewModel.setDataStoreRepository(DataStoreRepository(applicationContext))
@@ -143,9 +144,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         splashScreen.setKeepOnScreenCondition { keepSplashScreenVisible }
 
         splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
-            if  (_uiViewModel.robotState.value == RobotState.NOT_CONNECTED) {
-                launchNetworkScannerActivity()
-            }
             splashScreenViewProvider.remove()
         }
 
