@@ -31,10 +31,13 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
 
     private val _networkScanner = NetworkScanner()
     private lateinit var _deviceAdapter: DeviceAdapter
+    companion object {
+        var isOpen = false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
+        isOpen = true
         setContentView(R.layout.ui_network_devices_fragment)
         // Initialize views
         _scanButton = findViewById(R.id.scanButton)
@@ -58,6 +61,11 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
         }
 
         _networkScannerViewModel.setDataStoreRepository(DataStoreRepository(applicationContext))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isOpen = false
     }
 
     @SuppressLint("DefaultLocale")

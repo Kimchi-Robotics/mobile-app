@@ -42,11 +42,17 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
     override fun onResume() {
         super.onResume()
+        Log.i(TAG, "onResume")
         // Then handle your robot state logic
         _uiViewModel.robotState.observe(this) {
             Log.i(TAG, "Observing robot state $it")
             if  (it == RobotState.NOT_CONNECTED) {
-                launchNetworkScannerActivity()
+                if (NetworkScannerActivity.isOpen) {
+                    Log.i(TAG, "NetworkScannerActivity already opened")
+                } else {
+                    Log.i(TAG, "Opening NetworkScannerActivity")
+                    launchNetworkScannerActivity()
+                }
             } else if (it == RobotState.NO_MAP) {
                 if (!_startMappingDialog.isShowing) {
                     Log.i(TAG, "Showing dialog")

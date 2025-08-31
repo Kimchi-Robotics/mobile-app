@@ -3,6 +3,7 @@ package com.kimchi.deliverybot.utils
 import com.kimchi.grpc.RobotStateEnum
 
 enum class RobotState {
+    UNKNOWN,
     NO_MAP,
     MAPPING_WITH_EXPLORATION,
     MAPPING_WITH_TELEOP,

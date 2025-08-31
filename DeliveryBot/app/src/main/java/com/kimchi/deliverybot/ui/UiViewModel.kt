@@ -17,6 +17,7 @@ import com.kimchi.deliverybot.utils.Path
 import com.kimchi.deliverybot.utils.Pose2D
 import com.kimchi.deliverybot.utils.RobotState
 import com.kimchi.grpc.Velocity
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
@@ -25,10 +26,31 @@ import kotlinx.coroutines.withContext
  * services.
  */
 class UiViewModel: ViewModel() {
+    enum class Subscriptions {
+        MAP,
+        POSE,
+        PATH,
+        ROBOT_STATE
+    }
+
+    // Constant that holds the required grpc subscriptions for each RobotState possible.
+    val kStateSubscriptions: Map<RobotState, List<Subscriptions>> = mapOf(
+        RobotState.MAPPING_WITH_EXPLORATION to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE, Subscriptions.MAP),
+        RobotState.MAPPING_WITH_TELEOP to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE, Subscriptions.MAP),
+        RobotState.NAVIGATION to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE, Subscriptions.PATH),
+        RobotState.LOCATING to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE),
+        RobotState.TELEOP to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE),
+        RobotState.IDLE to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE, Subscriptions.PATH),
+        RobotState.LOST to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE),
+        RobotState.RECOVERING to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE, Subscriptions.PATH),
+        RobotState.GOAL_REACHED to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE, Subscriptions.PATH),
+        RobotState.NO_MAP to listOf(Subscriptions.POSE, Subscriptions.ROBOT_STATE),
+    )
+
     private val TAG = UiViewModel::class.qualifiedName
 
     private var _robotState = MutableLiveData<RobotState>().apply {
-        value = RobotState.IDLE
+        value = RobotState.UNKNOWN
     }
     var robotState: LiveData<RobotState> = _robotState
 
@@ -47,7 +69,7 @@ class UiViewModel: ViewModel() {
     }
     var path: LiveData<Path> = _robotPath
 
-
+    private var _subscriptionJobs = mutableMapOf<Subscriptions, Job>()
     private var _kimchiService: KimchiGrpc? = null
     private var _dataStoreRepo: DataStoreRepository? = null
 
@@ -79,9 +101,8 @@ class UiViewModel: ViewModel() {
             Log.d(TAG, "Connected to: $savedUri")
 
             Log.d(TAG, "Getting robot State")
-            _robotState.apply { value = _kimchiService!!.getRobotState() }
-            subscribeToRobotStateService()
-            handleCurrentState()
+            callMapService()
+            handleState(_kimchiService!!.getRobotState())
         }
     }
 
@@ -92,11 +113,10 @@ class UiViewModel: ViewModel() {
     fun callPoseService() {
         Log.i(TAG, "calling service")
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
-
-        viewModelScope.launch(Dispatchers.IO) {
+        _subscriptionJobs[Subscriptions.POSE] = viewModelScope.launch(Dispatchers.IO) {
             val poseClient = _kimchiService?.getPoseClient()
             withContext(Dispatchers.Main) {
                 try {
@@ -113,7 +133,7 @@ class UiViewModel: ViewModel() {
     private fun callMapService() {
         Log.i(TAG, "calling service")
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
 
@@ -131,7 +151,7 @@ class UiViewModel: ViewModel() {
 
     fun callMoveService(velocityFlow: Flow<Velocity>) {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
         // Launch in a coroutine scope
@@ -148,11 +168,11 @@ class UiViewModel: ViewModel() {
 
     private fun subscribeToMapService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        _subscriptionJobs[Subscriptions.MAP] = viewModelScope.launch(Dispatchers.IO) {
             val mapClient = _kimchiService?.getMapClient()
             withContext(Dispatchers.Main) {
                 try {
@@ -179,11 +199,11 @@ class UiViewModel: ViewModel() {
 
     private fun subscribeToPathService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        _subscriptionJobs[Subscriptions.PATH] = viewModelScope.launch(Dispatchers.IO) {
             val pathClient = _kimchiService?.getPathClient()
             withContext(Dispatchers.Main) {
                 try {
@@ -201,11 +221,11 @@ class UiViewModel: ViewModel() {
 
     private fun subscribeToRobotStateService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        _subscriptionJobs[Subscriptions.ROBOT_STATE] = viewModelScope.launch(Dispatchers.IO) {
             val robotStateClient = _kimchiService?.getRobotStateClient()
             withContext(Dispatchers.Main) {
                 try {
@@ -222,7 +242,7 @@ class UiViewModel: ViewModel() {
 
     fun callStartMappingService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
 
@@ -238,7 +258,7 @@ class UiViewModel: ViewModel() {
 
     fun callStartNavigationService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -252,7 +272,7 @@ class UiViewModel: ViewModel() {
 
     fun callNavigationCancelGoalService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -266,7 +286,7 @@ class UiViewModel: ViewModel() {
 
     fun callNavigationContinuePathService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -280,7 +300,7 @@ class UiViewModel: ViewModel() {
 
     fun callNavigationCancelMissionService() {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -293,17 +313,74 @@ class UiViewModel: ViewModel() {
     }
 
     fun handleState(robotState: RobotState) {
+        Log.i(TAG, "################################################################################################3")
+        Log.i(TAG, "handling new state: ${robotState} when old state is ${_robotState.value}")
         if (robotState == _robotState.value) {
+            Log.i(TAG, "Returnin from handle state")
             return
         } else if (_robotState.value == RobotState.MAPPING_WITH_EXPLORATION || _robotState.value == RobotState.MAPPING_WITH_TELEOP){
             if (robotState == RobotState.IDLE ) {
                 // Cancel subscription to map
             }
         }
-        _robotState.apply { value = robotState }
-        handleCurrentState()
-    }
+        Log.i(TAG, "Handling new state")
 
+        _robotState.apply { value = robotState }
+
+        Log.i(TAG, "New robotstate is ${_robotState.value}")
+        Log.i(TAG, "Required subscriptions are: ${kStateSubscriptions[_robotState.value]}")
+
+        // Unsubscribe from non required services.
+        for (job in _subscriptionJobs) {
+            if(!kStateSubscriptions[_robotState.value]!!.contains(job.key)){
+                Log.i(TAG, "Unsubscribing from: ${job.key}")
+
+                job.value.cancel()
+                _subscriptionJobs.remove(job.key)
+            }
+        }
+
+        // Subscribe to required services if they are not subscribed yet.
+        for (requiredJob in kStateSubscriptions[_robotState.value]!!) {
+            when (requiredJob) {
+                Subscriptions.MAP -> {
+                    if (!_subscriptionJobs.contains(Subscriptions.MAP)) {
+                        Log.i(TAG, "Subscribing to: ${Subscriptions.MAP}")
+                        subscribeToMapService()
+                    } else {
+                        Log.i(TAG, "Already subscribed to: ${Subscriptions.MAP}")
+                    }
+                }
+                Subscriptions.POSE -> {
+                    if (!_subscriptionJobs.contains(Subscriptions.POSE)) {
+                        Log.i(TAG, "Subscribing to: ${Subscriptions.POSE}")
+                        callPoseService()
+                    } else {
+                        Log.i(TAG, "Already subscribed to: ${Subscriptions.POSE}")
+                    }
+                }
+                Subscriptions.PATH -> {
+                    if (!_subscriptionJobs.contains(Subscriptions.PATH)) {
+                        Log.i(TAG, "Subscribing to: ${Subscriptions.PATH}")
+                        subscribeToPathService()
+                    } else {
+                        Log.i(TAG, "Already subscribed to: ${Subscriptions.PATH}")
+                    }
+                }
+                Subscriptions.ROBOT_STATE -> {
+                    if (!_subscriptionJobs.contains(Subscriptions.ROBOT_STATE)) {
+                        Log.i(TAG, "Subscribing to: ${Subscriptions.ROBOT_STATE}")
+                        subscribeToRobotStateService()
+                    } else {
+                        Log.i(TAG, "Already subscribed to: ${Subscriptions.ROBOT_STATE}")
+                    }
+                }
+            }
+        }
+
+//        handleCurrentState()
+    }
+/*
     private fun handleCurrentState(){
         when(_robotState.value) {
             RobotState.IDLE -> {
@@ -323,7 +400,6 @@ class UiViewModel: ViewModel() {
             RobotState.MAPPING_WITH_TELEOP -> {
                 subscribeToMapService()
                 callPoseService()
-//                subscribeToPoseService()
             }
             RobotState.NAVIGATION -> {
                 Log.i(TAG, "RobotState.NAVIGATION")
@@ -356,17 +432,19 @@ class UiViewModel: ViewModel() {
             }
         }
     }
-
+*/
     fun onSingleTouch(xBitmap: Float, yBitmap: Float) {
         if(_kimchiService == null) {
-            Log.d(TAG, "gRPC server not yet initialized")
+            Log.e(TAG, "gRPC server not yet initialized")
             return
         }
+        Log.i(TAG, "onSingleTouch")
 
         val poseWorld = _mapInfo.value!!.BitmapToWorld(Pose2D(xBitmap, yBitmap, 0F))
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                Log.i(TAG, "onSingleTouch, sending selectedpose")
                 _kimchiService!!.sendSelectedPose(poseWorld)
             } catch (e: Exception) {
                 Log.e(TAG, "The flow has thrown an exception: $e")

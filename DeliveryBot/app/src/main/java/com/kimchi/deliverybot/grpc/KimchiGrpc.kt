@@ -23,6 +23,7 @@ import com.kimchi.grpc.Path
 import com.kimchi.grpc.Velocity
 import com.kimchi.grpc.RobotStateMsg
 import com.kimchi.grpc.StartNavigationResponse
+import kotlinx.coroutines.Job
 import java.util.concurrent.TimeUnit
 
 class KimchiGrpc(uri: Uri) : Closeable {
