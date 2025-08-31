@@ -58,6 +58,7 @@ class UiStateFragment: Fragment() {
             RobotState.RECOVERING -> "Recovering"
             RobotState.GOAL_REACHED -> "Goal reached"
             RobotState.CHARGING -> "Charging"
+            RobotState.UNKNOWN -> "Unknown"
         }
     }
 
