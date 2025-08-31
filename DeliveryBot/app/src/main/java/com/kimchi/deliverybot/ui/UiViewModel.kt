@@ -313,28 +313,18 @@ class UiViewModel: ViewModel() {
     }
 
     fun handleState(robotState: RobotState) {
-        Log.i(TAG, "################################################################################################3")
-        Log.i(TAG, "handling new state: ${robotState} when old state is ${_robotState.value}")
+        Log.d(TAG, "Handling new state: ${robotState} when old state is ${_robotState.value}")
         if (robotState == _robotState.value) {
-            Log.i(TAG, "Returnin from handle state")
             return
-        } else if (_robotState.value == RobotState.MAPPING_WITH_EXPLORATION || _robotState.value == RobotState.MAPPING_WITH_TELEOP){
-            if (robotState == RobotState.IDLE ) {
-                // Cancel subscription to map
-            }
         }
-        Log.i(TAG, "Handling new state")
-
         _robotState.apply { value = robotState }
 
-        Log.i(TAG, "New robotstate is ${_robotState.value}")
-        Log.i(TAG, "Required subscriptions are: ${kStateSubscriptions[_robotState.value]}")
-
+        Log.d(TAG, "New robot state is ${_robotState.value}")
+        Log.d(TAG, "Required subscriptions are: ${kStateSubscriptions[_robotState.value]}")
         // Unsubscribe from non required services.
         for (job in _subscriptionJobs) {
             if(!kStateSubscriptions[_robotState.value]!!.contains(job.key)){
-                Log.i(TAG, "Unsubscribing from: ${job.key}")
-
+                Log.d(TAG, "Unsubscribing from: ${job.key}")
                 job.value.cancel()
                 _subscriptionJobs.remove(job.key)
             }
@@ -342,109 +332,29 @@ class UiViewModel: ViewModel() {
 
         // Subscribe to required services if they are not subscribed yet.
         for (requiredJob in kStateSubscriptions[_robotState.value]!!) {
-            when (requiredJob) {
-                Subscriptions.MAP -> {
-                    if (!_subscriptionJobs.contains(Subscriptions.MAP)) {
-                        Log.i(TAG, "Subscribing to: ${Subscriptions.MAP}")
-                        subscribeToMapService()
-                    } else {
-                        Log.i(TAG, "Already subscribed to: ${Subscriptions.MAP}")
-                    }
+            if (!_subscriptionJobs.contains(requiredJob)) {
+                Log.d(TAG, "Subscribing to $requiredJob")
+                when (requiredJob) {
+                    Subscriptions.MAP -> subscribeToMapService()
+                    Subscriptions.POSE -> callPoseService()
+                    Subscriptions.PATH -> subscribeToPathService()
+                    Subscriptions.ROBOT_STATE -> subscribeToRobotStateService()
                 }
-                Subscriptions.POSE -> {
-                    if (!_subscriptionJobs.contains(Subscriptions.POSE)) {
-                        Log.i(TAG, "Subscribing to: ${Subscriptions.POSE}")
-                        callPoseService()
-                    } else {
-                        Log.i(TAG, "Already subscribed to: ${Subscriptions.POSE}")
-                    }
-                }
-                Subscriptions.PATH -> {
-                    if (!_subscriptionJobs.contains(Subscriptions.PATH)) {
-                        Log.i(TAG, "Subscribing to: ${Subscriptions.PATH}")
-                        subscribeToPathService()
-                    } else {
-                        Log.i(TAG, "Already subscribed to: ${Subscriptions.PATH}")
-                    }
-                }
-                Subscriptions.ROBOT_STATE -> {
-                    if (!_subscriptionJobs.contains(Subscriptions.ROBOT_STATE)) {
-                        Log.i(TAG, "Subscribing to: ${Subscriptions.ROBOT_STATE}")
-                        subscribeToRobotStateService()
-                    } else {
-                        Log.i(TAG, "Already subscribed to: ${Subscriptions.ROBOT_STATE}")
-                    }
-                }
-            }
-        }
-
-//        handleCurrentState()
-    }
-/*
-    private fun handleCurrentState(){
-        when(_robotState.value) {
-            RobotState.IDLE -> {
-                Log.i(TAG, "RobotState.IDLE")
-                // This shouldn't be here because we only want to call those services when navigation starts
-                callMapService()
-                // init navigation
-                callPoseService()
-            }
-            RobotState.NO_MAP -> {
-                Log.i(TAG, "RobotState.NO_MAP")
-
-            } // Dialog saying that there is no map and we required to create one by mapping
-            RobotState.MAPPING_WITH_EXPLORATION -> {
-                Log.i(TAG, "RobotState.MAPPING_WITH_EXPLORATION")
-            }
-            RobotState.MAPPING_WITH_TELEOP -> {
-                subscribeToMapService()
-                callPoseService()
-            }
-            RobotState.NAVIGATION -> {
-                Log.i(TAG, "RobotState.NAVIGATION")
-                subscribeToPathService()
-                // TODO: clean up services and
-            }
-            RobotState.TELEOP -> {
-                Log.i(TAG, "RobotState.TELEOP")
-            }
-            RobotState.NOT_CONNECTED -> {
-                Log.i(TAG, "RobotState.NOT_CONNECTED")
-            }
-            null -> TODO()
-            RobotState.LOCATING -> {
-                callPoseService()
-                Log.i(TAG, "RobotState.LOCATING")
-            }
-            RobotState.LOST -> {
-                Log.i(TAG, "RobotState.LOST")
-                callMapService()
-            }
-            RobotState.RECOVERING -> {
-                Log.i(TAG, "RobotState.RECOVERING")
-            }
-            RobotState.GOAL_REACHED -> {
-                Log.i(TAG, "RobotState.GOAL_REACHED")
-            }
-            RobotState.CHARGING -> {
-                Log.i(TAG, "RobotState.CHARGING")
+            } else {
+                Log.d(TAG, "Already subscribed to $requiredJob")
             }
         }
     }
-*/
+
     fun onSingleTouch(xBitmap: Float, yBitmap: Float) {
         if(_kimchiService == null) {
             Log.e(TAG, "gRPC server not yet initialized")
             return
         }
-        Log.i(TAG, "onSingleTouch")
-
         val poseWorld = _mapInfo.value!!.BitmapToWorld(Pose2D(xBitmap, yBitmap, 0F))
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                Log.i(TAG, "onSingleTouch, sending selectedpose")
                 _kimchiService!!.sendSelectedPose(poseWorld)
             } catch (e: Exception) {
                 Log.e(TAG, "The flow has thrown an exception: $e")
