@@ -2,6 +2,8 @@ package com.kimchi.deliverybot
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,12 +15,14 @@ import android.widget.Button
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.kimchi.deliverybot.storage.DataStoreRepository
 import com.kimchi.deliverybot.ui.UiViewModel
 import com.kimchi.deliverybot.utils.RobotState
+import androidx.core.graphics.drawable.toDrawable
 
 class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
@@ -86,6 +90,7 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         _startMappingDialog = Dialog(this)
         _startMappingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         _startMappingDialog.setCancelable(false)
+        _startMappingDialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
     }
 
     /** Callback for when settings_menu button is pressed.  */
