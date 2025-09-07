@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.kimchi.deliverybot.R
 import kotlin.math.sqrt
 
 class JoystickView @JvmOverloads constructor(
@@ -29,7 +30,7 @@ class JoystickView @JvmOverloads constructor(
     }
 
     private val hatPaint: Paint = Paint().apply {
-        color = Color.DKGRAY
+        color = context.getColor(R.color.kimchi_rose_bud_cherry)
         alpha = 200
         style = Paint.Style.FILL
         isAntiAlias = true

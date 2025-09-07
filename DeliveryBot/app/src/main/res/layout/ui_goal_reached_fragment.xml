@@ -5,13 +5,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="10dp">
 
         <Button
             android:id="@+id/continue_path_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
+            android:layout_marginBottom="2dp"
             android:text="@string/continue_path"
             style="@style/StatedButton"/>
 

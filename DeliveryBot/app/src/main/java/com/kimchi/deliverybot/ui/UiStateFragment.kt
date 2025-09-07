@@ -46,18 +46,18 @@ class UiStateFragment: Fragment() {
 
     private fun updateStateTextView() {
         _robotStateContentTextView.text = when(_currentState) {
-            RobotState.IDLE -> "Idle"
-            RobotState.TELEOP -> "Teleoperation"
-            RobotState.NOT_CONNECTED -> "Not connected"
-            RobotState.MAPPING_WITH_TELEOP -> "Mapping with teleoperation"
-            RobotState.NAVIGATION -> "Navigating"
-            RobotState.LOCATING -> "Locating"
+            RobotState.IDLE -> "Inactivo"
+            RobotState.TELEOP -> "Teleoperando"
+            RobotState.NOT_CONNECTED -> "Desconectado"
+            RobotState.MAPPING_WITH_TELEOP -> "Mapeando..."
+            RobotState.NAVIGATION -> "Navegando"
+            RobotState.LOCATING -> "Localizando"
             RobotState.MAPPING_WITH_EXPLORATION -> "Mapping with exploration"
-            RobotState.NO_MAP -> "No map"
-            RobotState.LOST -> "Lost"
-            RobotState.RECOVERING -> "Recovering"
-            RobotState.GOAL_REACHED -> "Goal reached"
-            RobotState.CHARGING -> "Charging"
+            RobotState.NO_MAP -> "No hay mapa!"
+            RobotState.LOST -> "Deslocalizado"
+            RobotState.RECOVERING -> "Recuperando"
+            RobotState.GOAL_REACHED -> "Objectivo alcanzado"
+            RobotState.CHARGING -> "Cargando"
             RobotState.UNKNOWN -> "Unknown"
         }
     }
@@ -67,7 +67,7 @@ class UiStateFragment: Fragment() {
     */
     private fun updateStateFragment() {
         val newFragment = when (_currentState) {
-            RobotState.IDLE -> UiEmptyFragment()
+            RobotState.IDLE -> UiIdleFragment()
             RobotState.TELEOP -> UiJoystickFragment()
             RobotState.MAPPING_WITH_TELEOP -> UiMappingWithTeleopFragment()
             RobotState.GOAL_REACHED -> UiGoalReachedFragment()

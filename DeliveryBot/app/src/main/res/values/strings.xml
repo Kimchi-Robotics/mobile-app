@@ -9,12 +9,12 @@
     <string name="scan_network">Escanear red</string>
     <string name="state">Estado: </string>
     <string name="no_state">No hay estado</string>
-    <string name="finish_map">Terminar mapa</string>
+    <string name="finish_map">Finalizar</string>
     <string name="start_mapping">Empezar a mapear</string>
     <string name="mapping_explanation">Ningún mapa fue detectado en el robot. Es necesario generar uno antes de comenzar a navegar.</string>
     <string name="continue_path">Continuar</string>
     <string name="return_home">Volver</string>
-    <string name="stop">Parar</string>
+    <string name="stop">Detener</string>
     <string name="cancel_mission">Cancelar misión</string>
     <string name="localize_intructions">El robot esta perdido y no puede localizarse por su cuenta. Por favor, indique su ubicacion aproximada en el mapa. Una vez seleccionada, el robot iniciará un protocolo de posicionamiento para asegurar un resultado preciso.</string>
     <string name="localize">Localizar</string>

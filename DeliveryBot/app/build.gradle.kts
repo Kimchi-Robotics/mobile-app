@@ -41,6 +41,8 @@ android {
 dependencies {
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.airbnb.android:lottie:6.6.6")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.dynamicanimation.dynamicanimation)

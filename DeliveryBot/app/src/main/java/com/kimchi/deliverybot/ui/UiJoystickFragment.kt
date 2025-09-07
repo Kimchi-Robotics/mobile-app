@@ -48,15 +48,12 @@ class UiJoystickFragment: Fragment() {
                         if (!_sendJoyStickMsgs) {
                             _currentVelocity.linear = 0f
                             _currentVelocity.angular = 0f
-                            Log.i("Arilow", "Flow emitted canceled linear: ${_currentVelocity.linear}, angular: ${_currentVelocity.angular}")
                          }
 
-                        // TODO: wait until velocity chages instead for waiting some time
+                        // TODO: wait until velocity chages instead of waiting some time
                         val velocity = _currentVelocity.toProtoGrpcVelocity()
 
                         emit(velocity)
-                        Log.i("Arilow", "Flow emitted velocity: velocity= linear: ${_currentVelocity.linear}, angular: ${_currentVelocity.angular}")
-                        Log.i("Arilow", "Flow emitted _sendJoyStickMsgs: ${_sendJoyStickMsgs}")
                     } while (_sendJoyStickMsgs)
                 }
                 _uiViewModel.callMoveService(velocityFlow)
@@ -72,8 +69,6 @@ class UiJoystickFragment: Fragment() {
                     // axis.
                     _currentVelocity.angular = -xPercent
                 }
-
-                Log.i("Arilow", "joystick moved: x: ${xPercent}, y: ${yPercent}")
             }
 
             override fun onJoystickReleased() {
@@ -84,13 +79,8 @@ class UiJoystickFragment: Fragment() {
                     _currentVelocity.linear = 0f
                     _currentVelocity.angular = 0f
                 }
-
-                Log.i("Arilow", "joystick stop: x: ${0}, y: ${0}")
             }
         })
-
         return view
-
     }
-
 }
