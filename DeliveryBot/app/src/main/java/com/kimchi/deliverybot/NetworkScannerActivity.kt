@@ -1,16 +1,20 @@
 package com.kimchi.deliverybot
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.view.Gravity
+import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +26,7 @@ import com.kimchi.deliverybot.storage.DataStoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, DeviceAdapter.OnDeviceClickListener {
     private lateinit var _scanButton: Button
@@ -30,6 +35,8 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
     private val _networkScannerViewModel : NetworkScannerViewModel by viewModels()
 
     private val _networkScanner = NetworkScanner()
+    private lateinit var _scanningNetworkDialog: Dialog
+
     private lateinit var _deviceAdapter: DeviceAdapter
     companion object {
         var isOpen = false
@@ -52,6 +59,7 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
 
         // Setup scan button
         _scanButton.setOnClickListener {
+            showScanningNetworkDialog()
             startNetworkScan()
         }
 
@@ -90,28 +98,42 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
         _networkScanner.scanNetwork(formattedIP, this)
     }
 
+    fun showScanningNetworkDialog() {
+        _scanningNetworkDialog = Dialog(this)
+        _scanningNetworkDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        _scanningNetworkDialog.setCancelable(false)
+        _scanningNetworkDialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
+        _scanningNetworkDialog.setContentView(R.layout.dialog_loading)
+        _scanningNetworkDialog.window?.setGravity(Gravity.TOP)
+        _scanningNetworkDialog.show()
+    }
+
     // NetworkScanner.ScanListener implementation
     override fun onDeviceFound(ipAddress: String, hostname: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             var hostnameInput = hostname
             // TODO This code would let the user see in the list if the ip from a kimchi robot or not
             //      the  problem is that when you try to connect many time to the gRPC server, it kind of fail.
-            val alive = _networkScannerViewModel.tryUri(Uri.parse("http://${ipAddress}:${50051}"))
-            if (alive) {
-                hostnameInput = "$hostnameInput <- Kimchi Robot."
+            val alive = _networkScannerViewModel.tryUri("http://${ipAddress}:${50051}".toUri())
+            hostnameInput = if (alive) {
+                "$hostnameInput <- Kimchi Robot."
             } else {
-                hostnameInput = "$hostnameInput <- Couldn't establish connection."
+                "$hostnameInput <- Couldn't establish connection."
             }
 
             withContext(Dispatchers.Main) {
                 _deviceAdapter.addDevice(NetworkDevice(ipAddress, hostnameInput))
             }
+            _networkScannerViewModel.clear()
         }
     }
 
     override fun onScanComplete(devices: List<String>) {
         runOnUiThread {
             _statusTextView.text = "Scan complete. Found ${devices.size} devices."
+            if (_scanningNetworkDialog.isShowing) {
+                _scanningNetworkDialog.dismiss()
+            }
         }
     }
 

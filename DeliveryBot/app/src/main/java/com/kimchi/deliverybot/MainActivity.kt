@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.kimchi.deliverybot.storage.DataStoreRepository
 import com.kimchi.deliverybot.ui.UiViewModel
 import com.kimchi.deliverybot.utils.RobotState
+import androidx.core.graphics.drawable.toDrawable
 
 class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
@@ -86,6 +87,7 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         _startMappingDialog = Dialog(this)
         _startMappingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         _startMappingDialog.setCancelable(false)
+        _startMappingDialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
     }
 
     /** Callback for when settings_menu button is pressed.  */

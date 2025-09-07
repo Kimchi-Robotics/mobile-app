@@ -5,21 +5,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="10dp">
 
         <Button
             android:id="@+id/continue_path_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
-            android:text="@string/continue_path" />
+            android:layout_marginBottom="2dp"
+            android:text="@string/continue_path"
+            style="@style/StatedButton"/>
 
         <Button
             android:id="@+id/cancel_mission_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
-            android:text="@string/cancel_mission" />
+            android:layout_marginTop="5dp"
+            android:text="@string/cancel_mission"
+            style="@style/StatedButton"/>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,14 +21,7 @@ class UiControlPanelFragment: Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.ui_control_panel_fragment, container, false)
-        val positionContentTextView = view.findViewById<TextView>(R.id.positionContentTextView)
 
-        uiViewModel.pose.observe(viewLifecycleOwner) {
-            val x = it.x
-            val y = it.y
-            val positionContentString = java.lang.String("$x, $y")
-            positionContentTextView.text = positionContentString
-        }
         return view
     }
 }

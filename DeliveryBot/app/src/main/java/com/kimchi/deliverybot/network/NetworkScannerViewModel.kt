@@ -32,13 +32,17 @@ class NetworkScannerViewModel: ViewModel() {
             return true
         }
 
+        _kimchiService?.close()
         _kimchiService = null
         return false
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    fun clear() {
         _kimchiService?.close()
+        _kimchiService = null
     }
 
+    override fun onCleared() {
+        super.onCleared()
+    }
 }

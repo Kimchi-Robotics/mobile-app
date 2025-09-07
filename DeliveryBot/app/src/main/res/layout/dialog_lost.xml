@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="20dp">
 
-    <TextView
-        android:id="@+id/no_map_text_view"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/localize_intructions"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.289" />
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/no_map_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/kimchi_red_violet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Robot perdido!"
+            android:gravity="center"/>
+        <TextView
+            android:id="@+id/no_map_text_view"
+            android:layout_marginTop="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/localize_intructions"
+            android:gravity="center"/>
+        <Button
+            android:id="@+id/start_mapping_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/localize"
+            style="@style/DialogButton" />
 
-    <Button
-        android:id="@+id/start_mapping_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/localize"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/no_map_text_view" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
