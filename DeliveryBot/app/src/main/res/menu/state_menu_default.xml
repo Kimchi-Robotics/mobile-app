@@ -6,6 +6,8 @@
         android:title="@string/teleoperate" />
     <item android:id="@+id/state_mapping"
         android:title="@string/start_mapping" />
+    <item android:id="@+id/state_lost"
+        android:title="@string/localize_robot" />
     <item android:id="@+id/scan_network"
         android:title="@string/scan_network" />
 

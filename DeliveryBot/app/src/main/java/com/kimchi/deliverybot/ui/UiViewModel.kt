@@ -124,7 +124,7 @@ class UiViewModel: ViewModel() {
                         _pose.apply { value = Pose2D.fromProtoGrpcPose(grpcPose) }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "The flow has thrown an exception: $e")
+                    Log.e(TAG, "callPoseService: The flow has thrown an exception: $e")
                 }
             }
         }
@@ -144,7 +144,7 @@ class UiViewModel: ViewModel() {
                     _mapInfo.apply { value = map }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "callMapService: The flow has thrown an exception: $e")
             }
         }
     }
@@ -173,11 +173,13 @@ class UiViewModel: ViewModel() {
         }
 
         _subscriptionJobs[Subscriptions.MAP] = viewModelScope.launch(Dispatchers.IO) {
+            Log.e(TAG, "subscribeToMapService: subscribed")
             val mapClient = _kimchiService?.getMapClient()
             withContext(Dispatchers.Main) {
                 try {
                     mapClient?.collect {
                         grpcMap -> _mapInfo.apply {
+                            Log.e(TAG, "subscribeToMapService: start collecting")
                             if (grpcMap.image.size() == 0) {
                                 Log.d(
                                     TAG,
@@ -185,13 +187,17 @@ class UiViewModel: ViewModel() {
                                 )
                                 return@apply
                             }
+                            Log.e(TAG, "subscribeToMapService: The before converting to bitmap")
                             val imageBytes = Base64.decode(grpcMap.image.toByteArray(), Base64.DEFAULT)
+                            Log.e(TAG, "subscribeToMapService: The before bmp")
                             val bmp = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                            Log.e(TAG, "subscribeToMapService: The before value")
                             value = MapInfo(bmp, Pose2D(grpcMap.origin.x, grpcMap.origin.y, grpcMap.origin.theta), grpcMap.resolution)
+                            Log.e(TAG, "subscribeToMapService: finished collecting")
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "The flow has thrown an exception: $e")
+                    Log.e(TAG, "subscribeToMapService: The flow has thrown an exception: $e")
                 }
             }
         }
@@ -213,7 +219,7 @@ class UiViewModel: ViewModel() {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "The flow has thrown an exception: $e")
+                    Log.e(TAG, "subscribeToPathService: The flow has thrown an exception: $e")
                 }
             }
         }
@@ -233,7 +239,7 @@ class UiViewModel: ViewModel() {
                         grpcRobotState -> handleState(RobotState.fromKimchiRobotStateEnum(grpcRobotState.state))
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "The flow has thrown an exception: $e")
+                    Log.e(TAG, "subscribeToRobotStateService: The flow has thrown an exception: $e")
                 }
             }
         }
@@ -250,10 +256,24 @@ class UiViewModel: ViewModel() {
             try {
                 _kimchiService!!.startMapping()
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "callStartMappingService: The flow has thrown an exception: $e")
             }
         }
 
+    }
+
+    fun callStartRelocalization() {
+        if(_kimchiService == null) {
+            Log.e(TAG, "gRPC server not yet initialized")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _kimchiService!!.startLocalization()
+            } catch (e: Exception) {
+                Log.e(TAG, "callStartNavigationService: The flow has thrown an exception: $e")
+            }
+        }
     }
 
     fun callStartNavigationService() {
@@ -265,7 +285,7 @@ class UiViewModel: ViewModel() {
             try {
                 _kimchiService!!.startNavigation()
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "callStartNavigationService: The flow has thrown an exception: $e")
             }
         }
     }
@@ -279,7 +299,7 @@ class UiViewModel: ViewModel() {
             try {
                 _kimchiService!!.navigationCancelGoalService()
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "callNavigationCancelGoalService: The flow has thrown an exception: $e")
             }
         }
     }
@@ -293,7 +313,7 @@ class UiViewModel: ViewModel() {
             try {
                 _kimchiService!!.navigationContinuePathService()
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "callNavigationContinuePathService: The flow has thrown an exception: $e")
             }
         }
     }
@@ -307,7 +327,7 @@ class UiViewModel: ViewModel() {
             try {
                 _kimchiService!!.navigationCancelMissionService()
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "callNavigationCancelMissionService: The flow has thrown an exception: $e")
             }
         }
     }
@@ -357,7 +377,7 @@ class UiViewModel: ViewModel() {
             try {
                 _kimchiService!!.sendSelectedPose(poseWorld)
             } catch (e: Exception) {
-                Log.e(TAG, "The flow has thrown an exception: $e")
+                Log.e(TAG, "onSingleTouch: The flow has thrown an exception: $e")
             }
         }
     }

@@ -130,6 +130,11 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                 //_uiViewModel.startMapping()?
                 return true
             }
+            R.id.state_lost -> {
+                Log.i(TAG, "State lost selected")
+                _uiViewModel.callStartRelocalization()
+                return true
+            }
             R.id.scan_network -> {
                 Log.i(TAG, "Scan network selected")
                 launchNetworkScannerActivity()

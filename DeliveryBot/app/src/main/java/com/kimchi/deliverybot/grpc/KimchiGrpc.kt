@@ -143,6 +143,16 @@ class KimchiGrpc(uri: Uri) : Closeable {
         }
     }
 
+    suspend fun startLocalization() {
+        try {
+            val request = Empty.newBuilder().build()
+            stub.startLocalization(request)
+        } catch (e: Exception) {
+            responseState.value = e.message ?: "Unknown Error"
+            e.printStackTrace()
+        }
+    }
+
     suspend fun navigationContinuePathService() {
         try {
             val request = Empty.newBuilder().build()
