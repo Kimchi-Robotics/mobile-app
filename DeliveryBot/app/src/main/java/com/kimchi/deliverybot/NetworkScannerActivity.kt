@@ -79,7 +79,7 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
     @SuppressLint("DefaultLocale")
     private fun startNetworkScan() {
         // Update UI to show scanning state
-        _statusTextView.text = "Scanning network..."
+        _statusTextView.text = "Escaneando red..."
         _deviceAdapter.updateDevices(emptyList())
 
         // Get local IP address to determine subnet
@@ -118,7 +118,7 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
             hostnameInput = if (alive) {
                 "$hostnameInput <- Kimchi Robot."
             } else {
-                "$hostnameInput <- Couldn't establish connection."
+                "$hostnameInput <- No se pudo establecer la conexión."
             }
 
             withContext(Dispatchers.Main) {
@@ -130,7 +130,7 @@ class NetworkScannerActivity: AppCompatActivity(), NetworkScanner.ScanListener, 
 
     override fun onScanComplete(devices: List<String>) {
         runOnUiThread {
-            _statusTextView.text = "Scan complete. Found ${devices.size} devices."
+            _statusTextView.text = "Escaneo completado. ${devices.size} dispositivos encontrados."
             if (_scanningNetworkDialog.isShowing) {
                 _scanningNetworkDialog.dismiss()
             }
