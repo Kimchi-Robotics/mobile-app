@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
  * Shared view model between all UI classes. It takes care of the communication with the gRPC
  * services.
  */
-class UiViewModel: ViewModel() {
+class UiViewModel: ViewModel(), KimchiGrpc.GrpcStateListener {
     enum class Subscriptions {
         MAP,
         POSE,
@@ -58,7 +58,7 @@ class UiViewModel: ViewModel() {
         value = Pose2D(0f, 0f, 0f)
     }
     var pose: LiveData<Pose2D> = _pose
-
+    private var connected = false
     private var _mapInfo = MutableLiveData<MapInfo>().apply {
         value = MapInfo.empty()
     }
@@ -125,6 +125,7 @@ class UiViewModel: ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "callPoseService: The flow has thrown an exception: $e")
+                    _subscriptionJobs.remove(Subscriptions.POSE)
                 }
             }
         }
@@ -198,6 +199,7 @@ class UiViewModel: ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "subscribeToMapService: The flow has thrown an exception: $e")
+                    _subscriptionJobs.remove(Subscriptions.MAP)
                 }
             }
         }
@@ -220,6 +222,7 @@ class UiViewModel: ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "subscribeToPathService: The flow has thrown an exception: $e")
+                    _subscriptionJobs.remove(Subscriptions.PATH)
                 }
             }
         }
@@ -240,6 +243,7 @@ class UiViewModel: ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "subscribeToRobotStateService: The flow has thrown an exception: $e")
+                    _subscriptionJobs.remove(Subscriptions.ROBOT_STATE)
                 }
             }
         }
@@ -334,16 +338,16 @@ class UiViewModel: ViewModel() {
 
     fun handleState(robotState: RobotState) {
         Log.d(TAG, "Handling new state: ${robotState} when old state is ${_robotState.value}")
-        if (robotState == _robotState.value) {
+        if (robotState == RobotState.UNKNOWN) {
             return
         }
-        _robotState.apply { value = robotState }
+        _robotState.postValue(robotState)
 
-        Log.d(TAG, "New robot state is ${_robotState.value}")
-        Log.d(TAG, "Required subscriptions are: ${kStateSubscriptions[_robotState.value]}")
+        Log.d(TAG, "New robot state is ${robotState}")
+        Log.d(TAG, "Required subscriptions are: ${kStateSubscriptions[robotState]}")
         // Unsubscribe from non required services.
         for (job in _subscriptionJobs) {
-            if(!kStateSubscriptions[_robotState.value]!!.contains(job.key)){
+            if(!kStateSubscriptions[robotState]!!.contains(job.key)){
                 Log.d(TAG, "Unsubscribing from: ${job.key}")
                 job.value.cancel()
                 _subscriptionJobs.remove(job.key)
@@ -351,7 +355,7 @@ class UiViewModel: ViewModel() {
         }
 
         // Subscribe to required services if they are not subscribed yet.
-        for (requiredJob in kStateSubscriptions[_robotState.value]!!) {
+        for (requiredJob in kStateSubscriptions[robotState]!!) {
             if (!_subscriptionJobs.contains(requiredJob)) {
                 Log.d(TAG, "Subscribing to $requiredJob")
                 when (requiredJob) {
@@ -382,8 +386,9 @@ class UiViewModel: ViewModel() {
         }
     }
 
+
     private suspend fun tryUri(uri: Uri): Boolean {
-        _kimchiService = KimchiGrpc(uri)
+        _kimchiService = KimchiGrpc(uri, this)
         if(!_kimchiService!!.isAlive()) {
             _kimchiService = null
             return false
@@ -402,4 +407,22 @@ class UiViewModel: ViewModel() {
         super.onCleared()
         _kimchiService?.close()
     }
+
+    override fun onReady() {
+        Log.e(TAG, "onReady ")
+        if (!_robotState.isInitialized) {
+            Log.e(TAG, "onReady, returning ")
+            connected = true
+            return
+        }
+        Log.e(TAG, "Handling state again!!!!!!!!!!!!!! ")
+
+        // Reconnect to grpc flows if needed
+        handleState(_robotState.value!!)
+        connected = true
+    }
+    override fun onTransientFailure() {
+        connected = false
+    }
+
 }

@@ -23,12 +23,16 @@ import com.kimchi.grpc.Path
 import com.kimchi.grpc.Velocity
 import com.kimchi.grpc.RobotStateMsg
 import com.kimchi.grpc.StartNavigationResponse
+import io.grpc.ConnectivityState
 import java.util.concurrent.TimeUnit
 
-class KimchiGrpc(uri: Uri) : Closeable {
+class KimchiGrpc(uri: Uri, private val listener: GrpcStateListener?) : Closeable {
+    interface GrpcStateListener {
+        fun onReady()
+        fun onTransientFailure()
+    }
     private val TAG = KimchiGrpc::class.qualifiedName
     private val responseState = mutableStateOf("")
-
     private val channel = let {
         Log.i(TAG, "Connecting to $uri")
         val builder = ManagedChannelBuilder.forAddress(uri.host, uri.port)
@@ -41,6 +45,51 @@ class KimchiGrpc(uri: Uri) : Closeable {
     }
 
     private val stub = KimchiAppGrpcKt.KimchiAppCoroutineStub(channel)
+
+    init {
+        // Start monitoring connection state
+        Log.d(TAG, "Arilow initializing KimchiGrpc")
+        monitorConnectionState()
+    }
+    private fun monitorConnectionState() {
+        val currentState = channel.getState(true)  // <-- Change to true to request connection
+        Log.d(TAG, "Connection state: $currentState (thread: ${Thread.currentThread().name})")
+
+        handleStateChange(currentState)
+
+        if (currentState == ConnectivityState.SHUTDOWN) {
+            return
+        }
+
+        Log.d(TAG, "Registering for state change from $currentState")
+
+        channel.notifyWhenStateChanged(currentState) {
+            Log.d(TAG, "State change callback fired (thread: ${Thread.currentThread().name})")
+            monitorConnectionState()
+        }
+    }
+
+    private fun handleStateChange(state: ConnectivityState) {
+        when (state) {
+            ConnectivityState.READY -> {
+                Log.i(TAG, "Connected to server")
+                listener?.onReady()
+            }
+            ConnectivityState.TRANSIENT_FAILURE -> {
+                Log.w(TAG, "Connection failed (transient failure), will retry...")
+                listener?.onTransientFailure()
+            }
+            ConnectivityState.CONNECTING -> {
+                Log.d(TAG, "Connecting...")
+            }
+            ConnectivityState.IDLE -> {
+                Log.d(TAG, "Connection idle")
+            }
+            ConnectivityState.SHUTDOWN -> {
+                Log.i(TAG, "Connection shutdown")
+            }
+        }
+    }
 
     fun getPoseClient(): Flow<Pose>? {
         try {

@@ -20,7 +20,7 @@ class NetworkScannerViewModel: ViewModel() {
 
     suspend  fun tryUri(uri: Uri): Boolean {
         _kimchiService?.close()
-        _kimchiService = KimchiGrpc(uri)
+        _kimchiService = KimchiGrpc(uri, null)
 
         if(_kimchiService?.isAlive() == true) {
             // Save uri, so it can be obtained again when reopening the App.
